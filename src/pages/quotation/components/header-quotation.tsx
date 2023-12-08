@@ -1,6 +1,6 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import { Button, Input, Space } from "antd";
-import SearchSvg from "../../../assets/icons/search.svg";
+import SearchLogo from "../../../assets/icons/search.svg?react";
 
 type Props = {};
 
@@ -10,7 +10,7 @@ const HeaderQuotation = memo((props: Props) => {
       <Input
         size="middle"
         className="min-w-[320px] h-40px"
-        suffix={<img src={SearchSvg} alt="Search" />}
+        suffix={<SearchLogo />}
         placeholder="Search"
       />
       <Button
