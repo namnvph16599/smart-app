@@ -1,6 +1,11 @@
 import { createBrowserRouter } from "react-router-dom";
 import AppRoutes from "./app-router";
-import { DashboardPage, LoginPage, QuotationPage } from "../pages";
+import {
+  DashboardPage,
+  LoginPage,
+  QuotationDetailPage,
+  QuotationPage,
+} from "../pages";
 import { PrivateRoute } from "../layout/private-route";
 import MainLayout from "../layout/main-layout";
 
@@ -31,6 +36,10 @@ const useRouter = () => {
         {
           path: AppRoutes.quotation.value,
           element: <QuotationPage />,
+        },
+        {
+          path: AppRoutes.quotation.detail.value,
+          element: <QuotationDetailPage />,
         },
       ],
     },

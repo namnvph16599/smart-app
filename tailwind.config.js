@@ -6,8 +6,10 @@ export default {
       transparent: "transparent",
       white: "#FFFFFF",
       primarys: {},
+      error: "#ED212A",
       greens: {
         normal: "#1B998B",
+        light: "#E8F5F3",
         hover: "#1B998B",
       },
       grayscale: {
@@ -23,7 +25,8 @@ export default {
         900: "#1E2A3B",
         500: "#94A3B8",
         300: "rgba(226, 232, 240, 1)",
-        100 : "#F7F9FC"
+        100: "#F7F9FC",
+        600: "#64748B",
       },
       status: {
         error: "#c32f26",

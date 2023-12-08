@@ -37,7 +37,11 @@ function App() {
                 defaultColor: "#1B998B",
                 fontWeight: 500,
                 fontSize: 14,
+                controlHeight: 40,
                 fontFamily: "Lexend",
+              },
+              Steps: {
+                colorPrimary: "#1B998B",
               },
             },
           }}

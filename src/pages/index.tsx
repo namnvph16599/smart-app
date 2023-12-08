@@ -16,3 +16,5 @@ export const DashboardPage = () =>
   LazyLayout(() => import("./dashboard/dashboard"));
 export const QuotationPage = () =>
   LazyLayout(() => import("./quotation/quotation"));
+export const QuotationDetailPage = () =>
+  LazyLayout(() => import("./quotation/detail"));

@@ -7,6 +7,10 @@ const AppRoutes = {
   quotation: {
     label: "Quotation",
     value: "/quotation",
+    detail: {
+      value: "/quotation/:id",
+      id: (id: string) => "/quotation/" + id,
+    },
   },
   template: {
     label: "Template",

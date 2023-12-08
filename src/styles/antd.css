@@ -2,6 +2,17 @@
   font-family: "Lexend", sans-serif !important;
 }
 
-.ant-table {
+.ant-table,
+.ant-timeline {
   font-family: "Lexend", sans-serif !important;
+}
+
+/* custome css step */
+.ant-steps-icon {
+  font-size: 14px;
+  font-family: "Lexend", sans-serif !important;
+}
+
+.ant-steps-item-content {
+  width: 124px !important;
 }
