@@ -3,6 +3,7 @@ import { ApolloProvider } from "@apollo/client";
 import { ConfigProvider } from "antd";
 import { client as apolloClient } from "./apollo";
 import "./App.css";
+import AppRouter from "./app-router";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,9 +20,7 @@ function App() {
     <ApolloProvider client={apolloClient}>
       <QueryClientProvider client={queryClient}>
         <ConfigProvider>
-          <h1 className="text-3xl font-bold text-center text-[#ccc]">
-            Hello world!
-          </h1>
+          <AppRouter />
         </ConfigProvider>
       </QueryClientProvider>
     </ApolloProvider>
