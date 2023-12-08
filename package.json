@@ -11,10 +11,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@apollo/client": "^3.8.8",
     "@types/istanbul-lib-coverage": "^2.0.6",
     "@types/istanbul-lib-report": "^3.0.3",
     "antd": "^5.12.1",
     "axios": "^1.6.2",
+    "graphql": "^16.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-query": "^3.39.3"
