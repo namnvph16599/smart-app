@@ -18,7 +18,12 @@ const useRouter = () => {
     {
       path: AppRoutes.home,
       element: <PrivateRoute layout={MainLayout} />,
+
       children: [
+        {
+          path: AppRoutes.home,
+          element: <QuotationPage />,
+        },
         {
           path: AppRoutes.dashboard.value,
           element: <DashboardPage />,
