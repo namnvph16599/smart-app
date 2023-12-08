@@ -23,6 +23,7 @@ export default {
         900: "#1E2A3B",
         500: "#94A3B8",
         300: "rgba(226, 232, 240, 1)",
+        100 : "#F7F9FC"
       },
       status: {
         error: "#c32f26",

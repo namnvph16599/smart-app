@@ -1,10 +1,10 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import { Button, Input, Space } from "antd";
 import SearchLogo from "../../../assets/icons/search.svg?react";
+import { CreateQuote } from ".";
 
-type Props = {};
-
-const HeaderQuotation = memo((props: Props) => {
+const HeaderQuotation = memo(() => {
+  const [openModalCreate, setOpenModalCreate] = useState(false);
   return (
     <Space>
       <Input
@@ -16,6 +16,7 @@ const HeaderQuotation = memo((props: Props) => {
       <Button
         type="primary"
         className="h-40px bg-greens-normal hover:bg-greens-hover"
+        onClick={() => setOpenModalCreate(true)}
       >
         <Space className="h-32px">
           <svg
@@ -43,6 +44,9 @@ const HeaderQuotation = memo((props: Props) => {
           Add new
         </Space>
       </Button>
+      {openModalCreate && (
+        <CreateQuote open={openModalCreate} setOpen={setOpenModalCreate} />
+      )}
     </Space>
   );
 });

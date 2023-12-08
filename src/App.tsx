@@ -29,10 +29,12 @@ function App() {
                 fontFamily: "Lexend",
                 hoverBorderColor: "#1B998B",
                 activeBorderColor: "#1B998B",
+                controlHeight: 40,
               },
               Button: {
                 colorPrimaryBg: "#1B998B",
                 colorPrimaryBgHover: "#1B998B",
+                defaultColor: "#1B998B",
                 fontWeight: 500,
                 fontSize: 14,
                 fontFamily: "Lexend",
