@@ -3,7 +3,11 @@ import { AppLocation } from "../../components";
 import AppRoutes from "../../routers/app-router";
 import HeaderQuotation from "./components/header-quotation";
 import Table, { ColumnsType } from "antd/es/table";
+import { Space } from "antd";
 import { DefaultPagination } from "../../utils";
+import EditIcon from "../../assets/icons/action-edit-table.svg?react";
+import Edit2Icon from "../../assets/icons/action-table.svg?react";
+
 import "./style.css";
 
 enum StatusEnum {
@@ -108,6 +112,14 @@ const Quotation = memo(() => {
         key: "id",
         width: "8%",
         align: "center",
+        render: () => {
+          return (
+            <Space>
+              <EditIcon />
+              <Edit2Icon />
+            </Space>
+          );
+        },
       },
     ],
     []
