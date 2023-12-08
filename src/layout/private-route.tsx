@@ -11,10 +11,10 @@ type Props = {
 export const PrivateRoute = memo(
   ({ isAuthRoute, layout: Layout = Fragment, isPrivate }: Props) => {
     // const { isLoggedIn } = useAuth();
-    const isLoggedIn = false;
+    const isLoggedIn = true;
 
     if (isAuthRoute && isLoggedIn) {
-      return <Navigate to={AppRoutes.dashboard} replace />;
+      return <Navigate to={AppRoutes.dashboard.value} replace />;
     }
 
     if (isPrivate && !isLoggedIn) {

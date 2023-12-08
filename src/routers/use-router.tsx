@@ -1,6 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 import AppRoutes from "./app-router";
-import { DashboardPage, LoginPage } from "../pages";
+import { DashboardPage, LoginPage, QuotationPage } from "../pages";
+import { PrivateRoute } from "../layout/private-route";
+import MainLayout from "../layout/main-layout";
 
 const useRouter = () => {
   return createBrowserRouter([
@@ -15,10 +17,15 @@ const useRouter = () => {
     },
     {
       path: AppRoutes.home,
+      element: <PrivateRoute layout={MainLayout} />,
       children: [
         {
-          path: AppRoutes.dashboard,
+          path: AppRoutes.dashboard.value,
           element: <DashboardPage />,
+        },
+        {
+          path: AppRoutes.quotation.value,
+          element: <QuotationPage />,
         },
       ],
     },

@@ -1,0 +1,4 @@
+.custom-table .ant-table-thead .ant-table-cell {
+  background-color: rgba(226, 232, 240, 1) !important;
+  border: 1px solid "E2E8F0" !important;
+}

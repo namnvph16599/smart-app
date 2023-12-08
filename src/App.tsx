@@ -2,8 +2,8 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { ApolloProvider } from "@apollo/client";
 import { ConfigProvider } from "antd";
 import { client as apolloClient } from "./apollo";
-import "./App.css";
 import AppRouter from "./app-router";
+import "./styles/App.css";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,7 +19,27 @@ function App() {
   return (
     <ApolloProvider client={apolloClient}>
       <QueryClientProvider client={queryClient}>
-        <ConfigProvider>
+        <ConfigProvider
+          theme={{
+            components: {
+              Input: {
+                colorBorder: "#94A3B8",
+                controlHeightSM: 40,
+                fontSize: 14,
+                fontFamily: "Lexend",
+                hoverBorderColor: "#1B998B",
+                activeBorderColor: "#1B998B",
+              },
+              Button: {
+                colorPrimaryBg: "#1B998B",
+                colorPrimaryBgHover: "#1B998B",
+                fontWeight: 500,
+                fontSize: 14,
+                fontFamily: "Lexend",
+              },
+            },
+          }}
+        >
           <AppRouter />
         </ConfigProvider>
       </QueryClientProvider>
