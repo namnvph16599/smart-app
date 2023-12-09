@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ApolloProvider } from "@apollo/client";
-import { ConfigProvider } from "antd";
+import { ConfigProvider, ThemeConfig } from "antd";
 import { client as apolloClient } from "./apollo";
 import AppRouter from "./app-router";
 import "./styles/App.css";
@@ -15,37 +15,41 @@ const queryClient = new QueryClient({
   },
 });
 
+const antdTheme: ThemeConfig = {
+  components: {
+    Input: {
+      colorBorder: "#94A3B8",
+      controlHeightSM: 40,
+      fontSize: 14,
+      fontFamily: "Lexend",
+      hoverBorderColor: "#1B998B",
+      activeBorderColor: "#1B998B",
+      controlHeight: 40,
+      controlHeightLG: 56,
+    },
+    Button: {
+      colorPrimaryBg: "#1B998B",
+      colorPrimaryBgHover: "#1B998B",
+      defaultColor: "#1B998B",
+      fontWeight: 500,
+      fontSize: 14,
+      controlHeight: 40,
+      fontFamily: "Lexend",
+    },
+    Steps: {
+      colorPrimary: "#1B998B",
+    },
+    Select: {
+      controlHeight: 40,
+    },
+  },
+};
+
 function App() {
   return (
     <ApolloProvider client={apolloClient}>
       <QueryClientProvider client={queryClient}>
-        <ConfigProvider
-          theme={{
-            components: {
-              Input: {
-                colorBorder: "#94A3B8",
-                controlHeightSM: 40,
-                fontSize: 14,
-                fontFamily: "Lexend",
-                hoverBorderColor: "#1B998B",
-                activeBorderColor: "#1B998B",
-                controlHeight: 40,
-              },
-              Button: {
-                colorPrimaryBg: "#1B998B",
-                colorPrimaryBgHover: "#1B998B",
-                defaultColor: "#1B998B",
-                fontWeight: 500,
-                fontSize: 14,
-                controlHeight: 40,
-                fontFamily: "Lexend",
-              },
-              Steps: {
-                colorPrimary: "#1B998B",
-              },
-            },
-          }}
-        >
+        <ConfigProvider theme={antdTheme}>
           <AppRouter />
         </ConfigProvider>
       </QueryClientProvider>
