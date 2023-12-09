@@ -15,6 +15,11 @@ const AppRoutes = {
   template: {
     label: "Template",
     value: "/template",
+    create: "/template/create",
+    detail: {
+      value: "/template/:id",
+      id: (id: string) => "/template/" + id,
+    },
   },
   notFound: "/404",
   auth: {

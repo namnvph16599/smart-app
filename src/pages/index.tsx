@@ -18,3 +18,7 @@ export const QuotationPage = () =>
   LazyLayout(() => import("./quotation/quotation"));
 export const QuotationDetailPage = () =>
   LazyLayout(() => import("./quotation/detail"));
+export const TemplateDetailPage = () =>
+  LazyLayout(() => import("./template/template-detail"));
+export const TemplatePage = () =>
+  LazyLayout(() => import("./template/template"));

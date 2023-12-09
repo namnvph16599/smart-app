@@ -5,6 +5,8 @@ import {
   LoginPage,
   QuotationDetailPage,
   QuotationPage,
+  TemplateDetailPage,
+  TemplatePage,
 } from "../pages";
 import { PrivateRoute } from "../layout/private-route";
 import MainLayout from "../layout/main-layout";
@@ -40,6 +42,14 @@ const useRouter = () => {
         {
           path: AppRoutes.quotation.detail.value,
           element: <QuotationDetailPage />,
+        },
+        {
+          path: AppRoutes.template.value,
+          element: <TemplatePage />,
+        },
+        {
+          path: AppRoutes.template.create,
+          element: <TemplateDetailPage />,
         },
       ],
     },

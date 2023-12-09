@@ -15,10 +15,10 @@ const HeaderQuotation = memo(() => {
       />
       <Button
         type="primary"
-        className="h-40px bg-greens-normal hover:bg-greens-hover"
+        className="bg-greens-normal hover:bg-greens-hover"
         onClick={() => setOpenModalCreate(true)}
       >
-        <Space className="h-32px">
+        <Space>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
