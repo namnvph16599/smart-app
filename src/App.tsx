@@ -42,6 +42,9 @@ const antdTheme: ThemeConfig = {
     Select: {
       controlHeight: 40,
     },
+    Spin: {
+      colorBgBase: "#1B998B",
+    },
   },
 };
 

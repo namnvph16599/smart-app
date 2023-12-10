@@ -5,7 +5,11 @@ const LazyLayout = (importStatement: () => Promise<any>) => {
   const Component = lazy(importStatement);
 
   return (
-    <Suspense fallback={<Spin />}>
+    <Suspense
+      fallback={
+        <Spin className="w-full h-full flex justify-center items-center" />
+      }
+    >
       <Component />
     </Suspense>
   );

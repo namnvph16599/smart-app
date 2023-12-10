@@ -83,7 +83,6 @@ const TemplateDetail = memo(() => {
 
   useEffect(() => {
     form.setFieldsValue({
-      // attributes: [...(oldAttribute ?? []), values],
       attributes: [
         ...(oldAttribute ?? []),
         {
