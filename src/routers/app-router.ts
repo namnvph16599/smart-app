@@ -9,7 +9,7 @@ const AppRoutes = {
     value: "/quotation",
     detail: {
       value: "/quotation/:id",
-      id: (id: string) => "/quotation/" + id,
+      id: (id: string | number) => "/quotation/" + id,
     },
   },
   template: {

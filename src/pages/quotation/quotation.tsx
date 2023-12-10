@@ -9,6 +9,7 @@ import EditIcon from "../../assets/icons/action-edit-table.svg?react";
 import Edit2Icon from "../../assets/icons/action-table.svg?react";
 
 import "./style.css";
+import { useNavigate } from "react-router-dom";
 
 enum StatusEnum {
   Lf = "Lf",
@@ -32,6 +33,7 @@ const data: any = [
 ];
 
 const Quotation = memo(() => {
+  const navigate = useNavigate();
   const columns: ColumnsType<any> = useMemo(
     () => [
       {
@@ -115,14 +117,21 @@ const Quotation = memo(() => {
         render: () => {
           return (
             <Space>
-              <EditIcon />
+              <span
+                className="hover:cursor-pointer"
+                onClick={() => {
+                  navigate(AppRoutes.quotation.detail.id(1));
+                }}
+              >
+                <EditIcon />
+              </span>
               <Edit2Icon />
             </Space>
           );
         },
       },
     ],
-    []
+    [navigate]
   );
 
   return (

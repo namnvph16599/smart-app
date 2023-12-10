@@ -4,6 +4,7 @@ import { ConfigProvider, ThemeConfig } from "antd";
 import { client as apolloClient } from "./apollo";
 import AppRouter from "./app-router";
 import "./styles/App.css";
+import "handsontable/dist/handsontable.full.min.css";
 
 const queryClient = new QueryClient({
   defaultOptions: {
