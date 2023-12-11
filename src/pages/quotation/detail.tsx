@@ -2,10 +2,11 @@ import { memo, useEffect, useState } from "react";
 import { AppLocation } from "../../components";
 import AppRoutes from "../../routers/app-router";
 import { Button, Col, Row, Space, Steps } from "antd";
+import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { HotTable } from "@handsontable/react";
 import { registerAllModules } from "handsontable/registry";
-import 'handsontable/dist/handsontable.full.css';
-import Handsontable from 'handsontable';
+import "handsontable/dist/handsontable.full.css";
+import Handsontable from "handsontable";
 
 //
 import AddUserIcon from "../../assets/icons/add-user.svg?react";
@@ -24,37 +25,36 @@ const StepLabel = memo(({ name }: { name: string }) => {
   );
 });
 
-
-
 const QuotaionDetail = memo(() => {
+  const [openTimeline, setOpenTimeLine] = useState(false);
 
   const [data, setData] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
 
   useEffect(() => {
     // Fetch data from the API
-    fetch('https://jsonplaceholder.typicode.com/posts')
+    fetch("https://jsonplaceholder.typicode.com/posts")
       .then((response) => response.json())
       .then((apiData) => {
         setData(apiData);
       })
       .catch((error) => {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       });
 
     // Fetch user data from the API to populate the dropdown list
-    fetch('https://jsonplaceholder.typicode.com/users')
+    fetch("https://jsonplaceholder.typicode.com/users")
       .then((response) => response.json())
       .then((apiUsers) => {
         setUsers(apiUsers);
       })
       .catch((error) => {
-        console.error('Error fetching users:', error);
+        console.error("Error fetching users:", error);
       });
   }, []);
 
   // Register a custom cell type for the select dropdown
-  Handsontable.cellTypes.registerCellType('customDropdown', {
+  Handsontable.cellTypes.registerCellType("customDropdown", {
     editor: Handsontable.editors.AutocompleteEditor, // Use AutocompleteEditor for select dropdown behavior
     renderer: Handsontable.renderers.TextRenderer, // Use TextRenderer to display selected value
   });
@@ -62,22 +62,22 @@ const QuotaionDetail = memo(() => {
   const userNames = users.map((user) => user.name);
 
   const columns: Handsontable.ColumnSettings[] = [
-    { 
-      data: 'title',
-      title: 'Title',
+    {
+      data: "title",
+      title: "Title",
     },
-    { 
-      data: 'userId',
-      title: 'User',
-      type: 'customDropdown', // Use the registered custom cell type
+    {
+      data: "userId",
+      title: "User",
+      type: "customDropdown", // Use the registered custom cell type
       source: userNames, // Populate the dropdown source with user names
     },
-    { 
-      data: 'body',
-      title: 'Body',
+    {
+      data: "body",
+      title: "Body",
     },
   ];
-  
+
   return (
     <div className="bg-white px-[32px] custom-table">
       <AppLocation
@@ -140,8 +140,18 @@ const QuotaionDetail = memo(() => {
         />
       </div>
       <Row gutter={30}>
-        <Col span={20}>
-          <div style={{ width: '100%' }}>
+        <Col span={24}>
+          <div className="flex flex-row justify-end">
+            <Button
+              type="primary"
+              className="bg-greens-light text-greens-normal"
+              onClick={() => setOpenTimeLine(!openTimeline)}
+              icon={!openTimeline ? <EyeOutlined /> : <EyeInvisibleOutlined />}
+            />
+          </div>
+        </Col>
+        <Col span={openTimeline ? 20 : 24}>
+          <div style={{ width: "100%" }}>
             <ExcelToHandsontable />
             {/* <HotTable
               data={data}
@@ -163,7 +173,7 @@ const QuotaionDetail = memo(() => {
             /> */}
           </div>
         </Col>
-        <Col span={4}>
+        <Col span={openTimeline ? 4 : 0}>
           <TimelineQuote
             approveds={[
               {
@@ -181,7 +191,7 @@ const QuotaionDetail = memo(() => {
               {
                 approvedDate: new Date(),
                 actionLog: "steven",
-              }
+              },
             ]}
           />
         </Col>

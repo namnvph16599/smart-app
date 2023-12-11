@@ -36,6 +36,7 @@ const antdTheme: ThemeConfig = {
       fontSize: 14,
       controlHeight: 40,
       fontFamily: "Lexend",
+      colorPrimaryHover: "#1B998B",
     },
     Steps: {
       colorPrimary: "#1B998B",
