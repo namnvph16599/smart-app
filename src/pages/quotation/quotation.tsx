@@ -146,7 +146,7 @@ const Quotation = memo(() => {
             label: "Items",
           },
         ]}
-        title="List"
+        title="Quotation"
         rightContent={<HeaderQuotation />}
       />
       <div className="pt-32px">
