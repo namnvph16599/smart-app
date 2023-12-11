@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { HotTable } from '@handsontable/react';
 import Handsontable from 'handsontable';
 import * as XLSX from 'xlsx';
@@ -128,6 +128,28 @@ const ExcelToHandsontable: React.FC = () => {
         return {};
     };
 
+    const [tableSize, setTableSize] = useState({ width: '1200px', height: '500px' });
+
+    useEffect(() => {
+        function handleResize() {
+            // Example: Set width to 80% of window width, but not more than 1200px
+            const dynamicWidth = Math.min(window.innerWidth * 0.8, 1200);
+            // Example: Set height to a fixed value
+            const dynamicHeight = 500;
+
+            setTableSize({ width: `${dynamicWidth}px`, height: `${dynamicHeight}px` });
+        }
+
+        // Call the function to set initial size
+        handleResize();
+
+        // Set up the event listener
+        window.addEventListener('resize', handleResize);
+
+        // Clean up the event listener
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
 
 
 
@@ -182,12 +204,9 @@ const ExcelToHandsontable: React.FC = () => {
                 minSpareCols={0}
                 //height='auto'
                 licenseKey="non-commercial-and-evaluation"
-                //width={600}
                 stretchH="all"
-
-
-
-            // ... other options and configurations
+                 width={tableSize.width}
+                height={tableSize.height}
             />
         </div>
     );
