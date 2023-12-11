@@ -49,7 +49,7 @@ const MainLayout = memo(() => {
 
   return (
     <Layout>
-      <header className="bg-white flex justify-between items-center h-[66px] py-4px px-8px border-b border-grayscale-border sha">
+      <header className="bg-white flex justify-between items-center h-[66px] py-4px px-[32px] border-b border-grayscale-border sha">
         <Link to={AppRoutes.dashboard.value}>
           <img src={Logo} alt="Smart App" />
         </Link>
