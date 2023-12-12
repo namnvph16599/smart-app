@@ -90,7 +90,7 @@ const QuotaionDetail = memo(() => {
             label: "Quote",
           },
         ]}
-        title="Something name"
+        title="Quotation Detail"
         rightContent={
           <Space>
             <Button
