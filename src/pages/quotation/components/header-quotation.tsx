@@ -7,6 +7,10 @@ const HeaderQuotation = memo(() => {
   const [openModalCreate, setOpenModalCreate] = useState(false);
   return (
     <Space>
+      <Button className="bg-greens-light border-none hover:border hover:border-solid hover:border-greens-normal">
+        All
+      </Button>
+      <Button className="text-grey-900 ">Pending</Button>
       <Input
         size="middle"
         className="min-w-[320px] h-40px"
