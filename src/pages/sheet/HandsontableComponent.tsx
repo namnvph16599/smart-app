@@ -11,10 +11,15 @@ type CellStyle = {
     // Add more style properties as needed
 };
 
+type ExcelToHandsontableProps = {
+    openTimeline: boolean;
+};
+
+
 type Styles = {
     [cellRef: string]: CellStyle;
 };
-const ExcelToHandsontable: React.FC = () => {
+const ExcelToHandsontable: React.FC<ExcelToHandsontableProps> = ({ openTimeline }) => {
     const [data, setData] = useState<Handsontable.CellValue[][]>([]);
 
     const [styles, setStyles] = useState<any>();
@@ -128,12 +133,12 @@ const ExcelToHandsontable: React.FC = () => {
         return {};
     };
 
-    const [tableSize, setTableSize] = useState({ width: '1200px', height: '500px' });
+    const [tableSize, setTableSize] = useState({ width: '100%', height: '100%' });
 
     useEffect(() => {
         function handleResize() {
             // Example: Set width to 80% of window width, but not more than 1200px
-            const dynamicWidth = Math.min(window.innerWidth * 0.8, 1200);
+            const dynamicWidth = Math.min(openTimeline ? window.innerWidth * 0.8 : window.innerWidth * 0.95);
             // Example: Set height to a fixed value
             const dynamicHeight = 500;
 
@@ -148,7 +153,7 @@ const ExcelToHandsontable: React.FC = () => {
 
         // Clean up the event listener
         return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    }, [openTimeline]);
 
 
 

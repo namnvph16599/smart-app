@@ -152,7 +152,7 @@ const QuotaionDetail = memo(() => {
         </Col>
         <Col span={openTimeline ? 20 : 24}>
           <div style={{ width: "100%" }}>
-            <ExcelToHandsontable />
+            <ExcelToHandsontable openTimeline={openTimeline} />
             {/* <HotTable
               data={data}
               columns={columns}
