@@ -44,7 +44,7 @@ const ExcelToHandsontable: React.FC<ExcelToHandsontableProps> = ({ openTimeline 
     };
 
     const extractStyles = (worksheet: XLSX.WorkSheet): Styles => {
-        let styles: Styles = {};
+        const styles: Styles = {};
 
         if (worksheet['!ref']) {
             const range = XLSX.utils.decode_range(worksheet['!ref']);
@@ -66,7 +66,7 @@ const ExcelToHandsontable: React.FC<ExcelToHandsontableProps> = ({ openTimeline 
 
 
     const extractCellStyle = (cellStyle: any): CellStyle => {
-        let style: CellStyle = {};
+        const style: CellStyle = {};
 
         console.log(JSON.stringify(cellStyle));
         if (cellStyle?.bgColor) {
@@ -176,7 +176,7 @@ const ExcelToHandsontable: React.FC<ExcelToHandsontableProps> = ({ openTimeline 
                 }}
 
                 cells={function (row, col, prop) {
-                    var cellProperties = {} as Handsontable.CellProperties;
+                    const cellProperties = {} as Handsontable.CellProperties;
 
                     // Encode the current cell's reference
                     const cellRef = XLSX.utils.encode_cell({ r: row, c: col });

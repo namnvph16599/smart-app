@@ -4,11 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start:dev": "vite",
+    "start:dev": "vite --open",
     "dev": "vite --open",
     "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "fix": "yarn lint --fix",
+    "lint": "eslint \"**/*.{js,jsx,ts,tsx}\"",
+    "schema:codegen": "gqlg --schemaFilePath ./schema/schema.graphql --destDirPath ./__generated__ --depthLimit 3 && prettier --write --loglevel silent __generated__/**/*.gql",
+    "codegen": "graphql-codegen --config graphql-codegen/codegen.ts && yarn schema:codegen",
+    "typegen": "graphql-codegen --config graphql-codegen/typegen.yml && eslint ./src/graphql --fix",
+    "typegen:win": "graphql-codegen --config graphql-codegen/typegen.yml && yarn lint --fix"
   },
   "dependencies": {
     "@apollo/client": "^3.8.8",
@@ -17,6 +22,7 @@
     "@types/istanbul-lib-report": "^3.0.3",
     "antd": "^5.12.1",
     "axios": "^1.6.2",
+    "gql-generator": "^1.0.19",
     "graphql": "^16.8.1",
     "handsontable": "^14.0.0",
     "react": "^18.2.0",
@@ -28,6 +34,13 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "5.0.0",
+    "@graphql-codegen/client-preset": "4.1.0",
+    "@graphql-codegen/fragment-matcher": "^5.0.0",
+    "@graphql-codegen/introspection": "4.0.0",
+    "@graphql-codegen/near-operation-file-preset": "^3.0.0",
+    "@graphql-codegen/schema-ast": "^4.0.0",
+    "@graphql-codegen/typescript-react-apollo": "^4.1.0",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
@@ -38,8 +51,9 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.4",
     "postcss": "^8.4.32",
+    "prettier": "3.1.1",
     "tailwindcss": "^3.3.6",
-    "typescript": "^5.2.2",
+    "typescript": "^5.3.3",
     "vite": "^5.0.0"
   }
 }

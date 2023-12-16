@@ -1,0 +1,32 @@
+input CreateTemplateInput {
+  dynamicFields: [JSONObject!]!
+  name: String!
+}
+
+"""
+The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSONObject
+
+type Mutation {
+  createTemplate(createTemplateInput: CreateTemplateInput!): TemplateType!
+  removeTemplate(id: String!): Boolean!
+  updateTemplate(updateTemplateInput: UpdateTemplateInput!): TemplateType!
+}
+
+type Query {
+  findAllTemplates: [TemplateType!]!
+  findOneTemplate(id: String!): TemplateType!
+}
+
+type TemplateType {
+  dynamicFields: [JSONObject!]!
+  id: ID!
+  name: String!
+}
+
+input UpdateTemplateInput {
+  dynamicFields: [JSONObject!]
+  id: ID!
+  name: String
+}

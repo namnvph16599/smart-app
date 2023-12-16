@@ -1,9 +1,9 @@
-import axios from "axios";
+import axios from 'axios';
 
 export const instance = axios.create({
-  baseURL: "https://some-domain.com/api/",
+  baseURL: import.meta.env.VITE_BASE_URL,
   timeout: 1000,
-  headers: { "X-Custom-Header": "foobar" },
+  headers: { 'X-Custom-Header': 'foobar' },
 });
 
 // Add a request interceptor
@@ -15,7 +15,7 @@ axios.interceptors.request.use(
   function (error) {
     // Do something with request error
     return Promise.reject(error);
-  }
+  },
 );
 
 // Add a response interceptor
@@ -29,5 +29,5 @@ axios.interceptors.response.use(
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
     return Promise.reject(error);
-  }
+  },
 );
