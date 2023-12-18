@@ -1,15 +1,16 @@
-import { createBrowserRouter } from "react-router-dom";
-import AppRoutes from "./app-router";
+import { createBrowserRouter } from 'react-router-dom';
+import AppRoutes from './app-router';
 import {
   DashboardPage,
   LoginPage,
   QuotationDetailPage,
   QuotationPage,
+  TemplateCreatePage,
   TemplateDetailPage,
   TemplatePage,
-} from "../pages";
-import { PrivateRoute } from "../layout/private-route";
-import MainLayout from "../layout/main-layout";
+} from '../pages';
+import { PrivateRoute } from '../layout/private-route';
+import MainLayout from '../layout/main-layout';
 
 const useRouter = () => {
   return createBrowserRouter([
@@ -49,6 +50,10 @@ const useRouter = () => {
         },
         {
           path: AppRoutes.template.create,
+          element: <TemplateCreatePage />,
+        },
+        {
+          path: AppRoutes.template.detail.value,
           element: <TemplateDetailPage />,
         },
       ],
