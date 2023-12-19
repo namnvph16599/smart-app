@@ -16,16 +16,43 @@ export type Scalars = {
   JSONObject: { input: any; output: any; }
 };
 
+export type CreateQuotationInput = {
+  itemNumber: Scalars['String']['input'];
+  poNumber: Scalars['String']['input'];
+};
+
 export type CreateTemplateInput = {
   dynamicFields: Array<Scalars['JSONObject']['input']>;
   name: Scalars['String']['input'];
 };
 
+export type CreatesheetInput = {
+  dynamicFields: Array<Scalars['JSONObject']['input']>;
+  name: Scalars['String']['input'];
+  quotationId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  createQuotation: QuotationType;
+  createSheet: SheetType;
   createTemplate: TemplateType;
+  removeQuotation: Scalars['Boolean']['output'];
   removeTemplate: Scalars['Boolean']['output'];
+  removesheet: Scalars['Boolean']['output'];
+  updateQuotation: QuotationType;
   updateTemplate: TemplateType;
+  updatesheet: SheetType;
+};
+
+
+export type MutationCreateQuotationArgs = {
+  CreateQuotationInput: CreateQuotationInput;
+};
+
+
+export type MutationCreateSheetArgs = {
+  createSheetInput: CreatesheetInput;
 };
 
 
@@ -34,8 +61,23 @@ export type MutationCreateTemplateArgs = {
 };
 
 
+export type MutationRemoveQuotationArgs = {
+  id: Scalars['String']['input'];
+};
+
+
 export type MutationRemoveTemplateArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type MutationRemovesheetArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateQuotationArgs = {
+  updateQuoteInput: UpdateQuotationInput;
 };
 
 
@@ -43,15 +85,49 @@ export type MutationUpdateTemplateArgs = {
   updateTemplateInput: UpdateTemplateInput;
 };
 
+
+export type MutationUpdatesheetArgs = {
+  updateSheetInput: UpdatesheetInput;
+};
+
 export type Query = {
   __typename?: 'Query';
+  findAllQuotes: Array<QuotationType>;
+  findAllSheets: Array<SheetType>;
   findAllTemplates: Array<TemplateType>;
+  findOneQuote: QuotationType;
+  findOneSheet: SheetType;
   findOneTemplate: TemplateType;
+};
+
+
+export type QueryFindOneQuoteArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type QueryFindOneSheetArgs = {
+  id: Scalars['String']['input'];
 };
 
 
 export type QueryFindOneTemplateArgs = {
   id: Scalars['String']['input'];
+};
+
+export type QuotationType = {
+  __typename?: 'QuotationType';
+  id: Scalars['ID']['output'];
+  itemNumber: Scalars['String']['output'];
+  poNumber: Scalars['String']['output'];
+};
+
+export type SheetType = {
+  __typename?: 'SheetType';
+  dynamicFields: Array<Scalars['JSONObject']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  quotationId?: Maybe<Scalars['String']['output']>;
 };
 
 export type TemplateType = {
@@ -61,8 +137,22 @@ export type TemplateType = {
   name: Scalars['String']['output'];
 };
 
+export type UpdateQuotationInput = {
+  id: Scalars['ID']['input'];
+  itemNumber: Scalars['String']['input'];
+  poNumber: Scalars['String']['input'];
+};
+
 export type UpdateTemplateInput = {
   dynamicFields?: InputMaybe<Array<Scalars['JSONObject']['input']>>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdatesheetInput = {
+  dynamicFields?: InputMaybe<Array<Scalars['JSONObject']['input']>>;
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  quotationId?: InputMaybe<Scalars['String']['input']>;
+  updateBy?: InputMaybe<Scalars['String']['input']>;
 };
