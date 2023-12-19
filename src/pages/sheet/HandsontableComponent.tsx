@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { HotTable } from '@handsontable/react';
 import Handsontable from 'handsontable';
 import * as XLSX from 'xlsx';
 import 'handsontable/dist/handsontable.full.css';
 import './style.css'
 import HyperFormula from 'hyperformula';
+import { useFindOneTemplateQuery } from '../../graphql/queries/findOneTemplate.generated';
 
 type CellStyle = {
     backgroundColor?: string;
@@ -15,16 +16,141 @@ type ExcelToHandsontableProps = {
     openTimeline: boolean;
 };
 
+interface Column {
+  // Define the properties of your column objects here
+  data: string;
+  title:string;
+  type:string;
+}
+
 
 type Styles = {
     [cellRef: string]: CellStyle;
 };
 const ExcelToHandsontable: React.FC<ExcelToHandsontableProps> = ({ openTimeline }) => {
     const [data, setData] = useState<Handsontable.CellValue[][]>([]);
+    const [columns, setColumns] = useState<Column[]>([]);
+
 
     const [styles, setStyles] = useState<any>();
     const hotTableRef = useRef<HotTable>(null);
 
+    const [users, setUsers] = useState<any[]>([]);
+
+    useEffect(() => {
+        // Fetch data from the API
+        /*fetch("https://jsonplaceholder.typicode.com/posts")
+        .then((response) => response.json())
+        .then((apiData) => {
+            //setData(apiData);
+        })
+        .catch((error) => {
+            console.error("Error fetching data:", error);
+        });*/
+
+        // Fetch user data from the API to populate the dropdown list
+        fetch("https://jsonplaceholder.typicode.com/users")
+        .then((response) => response.json())
+        .then((apiUsers) => {
+            setUsers(apiUsers);
+        })
+        .catch((error) => {
+            console.error("Error fetching users:", error);
+        });
+
+        
+        
+
+  }, []);
+
+
+  
+
+
+  
+   
+
+
+  const userNames = users.map((user) => user.name);
+
+
+    /*const columns: Handsontable.ColumnSettings[] = [
+        {
+        data: "title",
+        title: "Title",
+        },
+        {
+        data: "userId",
+        title: "User",
+        type: "customDropdown", // Use the registered custom cell type
+        source: userNames, // Populate the dropdown source with user names
+        },
+        {
+        data: "body",
+        title: "Body",
+        },
+    ];*/
+
+
+    const { data:dataTemplate, loading: getting } = useFindOneTemplateQuery({
+        variables: {
+        id: "65804c236a94f3035dc8fe82",
+        },
+        skip: !"65804c236a94f3035dc8fe82",
+    });
+
+    const template = useMemo(() => dataTemplate?.findOneTemplate, [dataTemplate]);
+
+
+const handsontableColumns = template?.dynamicFields?.map((field: { fieldName: any; type: any; }) => {
+  const column:any = { data: field.fieldName, title: field.fieldName};
+
+  switch (field.type) {
+    case "text":
+      // No specific configuration needed for text
+     
+      column.type = "text";
+      break;
+    case "number":
+      column.type = "numeric";
+      break;
+    case "dropdownlist":
+      column.type = "dropdown";
+      // You would need to fetch the dropdown data from the URL provided
+      // For simplicity, let's assume it's already fetched and stored in a variable
+      column.source = userNames; // dropdownData should be an array of values
+      break;
+    default:
+      // Handle any other types or default case
+  }
+
+  return column;
+});
+
+
+
+    useEffect(() => {
+
+
+        const fieldNames = template?.dynamicFields?.map((field: { fieldName: any; }) => field.fieldName);
+        const input1 = [fieldNames];
+
+        const numberOfRows = 100;
+        const numberOfColumns = 10;
+        const data = Array.from({ length: numberOfRows }, () => 
+        new Array(numberOfColumns).fill('')
+        );
+
+        console.log(JSON.stringify(input1) );
+
+        console.log(JSON.stringify(handsontableColumns) );
+        
+        setData(data as Handsontable.CellValue[][]);
+        setColumns(handsontableColumns);
+
+  }, [template]);
+
+ 
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -90,7 +216,7 @@ const ExcelToHandsontable: React.FC<ExcelToHandsontableProps> = ({ openTimeline 
         return style;
     };
 
-
+    
 
     const processData = (workbook: XLSX.WorkBook) => {
         const firstSheetName = workbook.SheetNames[0];
@@ -99,7 +225,28 @@ const ExcelToHandsontable: React.FC<ExcelToHandsontableProps> = ({ openTimeline 
         const cellsStyle = extractStyles(worksheet);
 
         setStyles(cellsStyle);
+        console.log(JSON.stringify(jsonData));
+        
+        const headers: string[] = jsonData[0] as string[];
 
+        const columns = headers.map((header: string) => {
+            let columnConfig:any = { data: header,
+        title: header };
+
+            // Add specific configurations based on header name if needed
+            // Example:
+            columnConfig.type = 'text';
+            if (header === "Price" || header === "Rating") {
+                columnConfig.type = 'numeric';
+            }
+
+            // Add more conditions for other specific headers if necessary
+
+            return columnConfig;
+            });
+
+        setColumns(columns);
+        console.log(columns);
         setData(jsonData as Handsontable.CellValue[][]);
     };
 
@@ -170,37 +317,12 @@ const ExcelToHandsontable: React.FC<ExcelToHandsontableProps> = ({ openTimeline 
             <HotTable
                 className="white-background"
                 data={data}
+                columns={columns}
                 ref={hotTableRef}
                 formulas={{
                     engine: hyperFormulaInstance,
                 }}
 
-                cells={function (row, col, prop) {
-                    const cellProperties = {} as Handsontable.CellProperties;
-
-                    // Encode the current cell's reference
-                    const cellRef = XLSX.utils.encode_cell({ r: row, c: col });
-                    // Retrieve the style for the current cell
-                    const cellStyle = styles[cellRef];
-
-                    // Check if there's a style to be applied
-                    if (cellStyle) {
-
-                        cellProperties.renderer = function (instance, td, row, col, prop, value, cellProperties) {
-                            // Apply the default text renderer
-                            Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
-                            //console.log(cellStyle.backgroundColor);
-                            td.style.backgroundColor = cellStyle.backgroundColor;
-                            // Apply the extracted background color style
-                            if (cellStyle.backgroundColor) {
-                                td.style.backgroundColor = cellStyle.backgroundColor;
-                            }
-                            // Add more style applications as needed
-                        };
-                    }
-
-                    return cellProperties;
-                }}
                 //cells={cellProperties}
                 afterOnCellMouseDown={handleCellClick}
                 colHeaders={true}
