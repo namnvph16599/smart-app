@@ -1,6 +1,10 @@
 input CreateQuotationInput {
-  itemNumber: String!
+  category: String!
+  itemNumber: String
   poNumber: String!
+  stage: String
+  status: String
+  supplier: String
 }
 
 input CreateTemplateInput {
@@ -41,9 +45,13 @@ type Query {
 }
 
 type QuotationType {
+  category: String!
   id: ID!
   itemNumber: String!
   poNumber: String!
+  stage: String!
+  status: String!
+  supplier: String!
 }
 
 type SheetType {
@@ -60,9 +68,13 @@ type TemplateType {
 }
 
 input UpdateQuotationInput {
+  category: String
   id: ID!
-  itemNumber: String!
+  itemNumber: String
   poNumber: String!
+  stage: String
+  status: String
+  supplier: String
 }
 
 input UpdateTemplateInput {

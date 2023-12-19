@@ -16,7 +16,7 @@ const Dashboard = memo(() => {
           },
         ]}
       />
-      <div className="pt-32px">Dashboard</div>
+      {/* <div className="pt-32px">Dashboard</div> */}
     </div>
   );
 });

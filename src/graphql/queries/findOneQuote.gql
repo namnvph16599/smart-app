@@ -1,7 +1,11 @@
-query findOneQuote($id: String!) {
-  findOneQuote(id: $id) {
-    id
-    itemNumber
-    poNumber
-  }
+query findOneQuote($id: String!){
+    findOneQuote(id: $id){
+        category
+        id
+        itemNumber
+        poNumber
+        stage
+        status
+        supplier
+    }
 }

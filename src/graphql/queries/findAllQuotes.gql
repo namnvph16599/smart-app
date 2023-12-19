@@ -1,7 +1,11 @@
-query findAllQuotes {
-  findAllQuotes {
-    id
-    itemNumber
-    poNumber
-  }
+query findAllQuotes{
+    findAllQuotes{
+        category
+        id
+        itemNumber
+        poNumber
+        stage
+        status
+        supplier
+    }
 }

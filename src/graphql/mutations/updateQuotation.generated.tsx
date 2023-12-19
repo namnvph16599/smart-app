@@ -12,7 +12,7 @@ export type UpdateQuotationMutationResponse = (
   { __typename?: 'Mutation' }
   & { updateQuotation: (
     { __typename?: 'QuotationType' }
-    & Pick<Types.QuotationType, 'id' | 'itemNumber' | 'poNumber'>
+    & Pick<Types.QuotationType, 'category' | 'id' | 'itemNumber' | 'poNumber' | 'stage' | 'status' | 'supplier'>
   ) }
 );
 
@@ -20,9 +20,13 @@ export type UpdateQuotationMutationResponse = (
 export const UpdateQuotationDocument = gql`
     mutation updateQuotation($updateQuoteInput: UpdateQuotationInput!) {
   updateQuotation(updateQuoteInput: $updateQuoteInput) {
+    category
     id
     itemNumber
     poNumber
+    stage
+    status
+    supplier
   }
 }
     `;

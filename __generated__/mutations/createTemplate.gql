@@ -1,7 +1,7 @@
-mutation createTemplate($createTemplateInput: CreateTemplateInput!) {
-  createTemplate(createTemplateInput: $createTemplateInput) {
-    dynamicFields
-    id
-    name
-  }
+mutation createTemplate($createTemplateInput: CreateTemplateInput!){
+    createTemplate(createTemplateInput: $createTemplateInput){
+        dynamicFields
+        id
+        name
+    }
 }

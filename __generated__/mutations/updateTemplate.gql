@@ -1,7 +1,7 @@
-mutation updateTemplate($updateTemplateInput: UpdateTemplateInput!) {
-  updateTemplate(updateTemplateInput: $updateTemplateInput) {
-    dynamicFields
-    id
-    name
-  }
+mutation updateTemplate($updateTemplateInput: UpdateTemplateInput!){
+    updateTemplate(updateTemplateInput: $updateTemplateInput){
+        dynamicFields
+        id
+        name
+    }
 }

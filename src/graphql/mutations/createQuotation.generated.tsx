@@ -12,7 +12,7 @@ export type CreateQuotationMutationResponse = (
   { __typename?: 'Mutation' }
   & { createQuotation: (
     { __typename?: 'QuotationType' }
-    & Pick<Types.QuotationType, 'id' | 'itemNumber' | 'poNumber'>
+    & Pick<Types.QuotationType, 'category' | 'id' | 'itemNumber' | 'poNumber' | 'stage' | 'status' | 'supplier'>
   ) }
 );
 
@@ -20,9 +20,13 @@ export type CreateQuotationMutationResponse = (
 export const CreateQuotationDocument = gql`
     mutation createQuotation($CreateQuotationInput: CreateQuotationInput!) {
   createQuotation(CreateQuotationInput: $CreateQuotationInput) {
+    category
     id
     itemNumber
     poNumber
+    stage
+    status
+    supplier
   }
 }
     `;

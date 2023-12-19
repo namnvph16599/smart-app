@@ -12,7 +12,7 @@ export type FindOneQuoteQueryResponse = (
   { __typename?: 'Query' }
   & { findOneQuote: (
     { __typename?: 'QuotationType' }
-    & Pick<Types.QuotationType, 'id' | 'itemNumber' | 'poNumber'>
+    & Pick<Types.QuotationType, 'category' | 'id' | 'itemNumber' | 'poNumber' | 'stage' | 'status' | 'supplier'>
   ) }
 );
 
@@ -20,9 +20,13 @@ export type FindOneQuoteQueryResponse = (
 export const FindOneQuoteDocument = gql`
     query findOneQuote($id: String!) {
   findOneQuote(id: $id) {
+    category
     id
     itemNumber
     poNumber
+    stage
+    status
+    supplier
   }
 }
     `;

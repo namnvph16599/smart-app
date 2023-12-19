@@ -10,6 +10,7 @@ import Edit2Icon from "../../assets/icons/action-table.svg?react";
 
 import "./style.css";
 import { useNavigate } from "react-router-dom";
+import { useFindAllQuotesQuery } from "../../graphql/queries/findAllQuotes.generated";
 
 enum StatusEnum {
   Lf = "Lf",
@@ -17,6 +18,7 @@ enum StatusEnum {
   Supplier = "Supplier",
 }
 
+/*
 const data: any = [
   {
     poNumber: 1,
@@ -30,7 +32,9 @@ const data: any = [
     poNumber: 3,
     status: StatusEnum.Supplier,
   },
-];
+];*/
+
+
 
 const Quotation = memo(() => {
   const navigate = useNavigate();
@@ -45,22 +49,22 @@ const Quotation = memo(() => {
       },
       {
         title: "Item No.",
-        dataIndex: "customerItemNumber",
-        key: "customerItemNumber",
+        dataIndex: "itemNumber",
+        key: "itemNumber",
         width: "5%",
         align: "center",
       },
       {
         title: "Category",
-        dataIndex: "itemCategory",
-        key: "itemCategory",
+        dataIndex: "category",
+        key: "category",
         width: "10%",
         align: "center",
       },
       {
         title: "Supplier name",
-        dataIndex: "supplierName",
-        key: "supplierName",
+        dataIndex: "supplier",
+        key: "supplier",
         align: "center",
       },
 
@@ -69,8 +73,8 @@ const Quotation = memo(() => {
         children: [
           {
             title: "Stage",
-            dataIndex: "developmentStatus",
-            key: "developmentStatus",
+            dataIndex: "stage",
+            key: "stage",
             align: "center",
             width: "10%",
           },
@@ -134,6 +138,12 @@ const Quotation = memo(() => {
     [navigate]
   );
 
+  const { data, loading: getting, error, refetch } = useFindAllQuotesQuery({ fetchPolicy: 'cache-and-network' });
+
+  const quotes = useMemo(() => data?.findAllQuotes ?? [], [data]);
+
+  const loading = useMemo(() => getting, [getting]);
+
   return (
     <div className="bg-white px-[32px] custom-table">
       <AppLocation
@@ -154,12 +164,12 @@ const Quotation = memo(() => {
           size="small"
           // loading={isLoading}
           columns={columns}
-          dataSource={data}
+          dataSource={quotes}
           pagination={{
             ...DefaultPagination,
             // onChange: onChangePage,
             // current: Number(filter?.page),
-            total: data?.length,
+            total: quotes?.length,
           }}
           scroll={{ y: "calc(100vh - 320px)" }}
           rowKey={"id"}

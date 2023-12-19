@@ -10,7 +10,7 @@ export type FindAllQuotesQueryResponse = (
   { __typename?: 'Query' }
   & { findAllQuotes: Array<(
     { __typename?: 'QuotationType' }
-    & Pick<Types.QuotationType, 'id' | 'itemNumber' | 'poNumber'>
+    & Pick<Types.QuotationType, 'category' | 'id' | 'itemNumber' | 'poNumber' | 'stage' | 'status' | 'supplier'>
   )> }
 );
 
@@ -18,9 +18,13 @@ export type FindAllQuotesQueryResponse = (
 export const FindAllQuotesDocument = gql`
     query findAllQuotes {
   findAllQuotes {
+    category
     id
     itemNumber
     poNumber
+    stage
+    status
+    supplier
   }
 }
     `;

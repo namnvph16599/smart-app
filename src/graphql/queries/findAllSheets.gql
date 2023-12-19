@@ -1,8 +1,8 @@
-query findAllSheets {
-  findAllSheets {
-    dynamicFields
-    id
-    name
-    quotationId
-  }
+query findAllSheets{
+    findAllSheets{
+        dynamicFields
+        id
+        name
+        quotationId
+    }
 }

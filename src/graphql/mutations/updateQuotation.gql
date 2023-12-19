@@ -1,7 +1,11 @@
-mutation updateQuotation($updateQuoteInput: UpdateQuotationInput!) {
-  updateQuotation(updateQuoteInput: $updateQuoteInput) {
-    id
-    itemNumber
-    poNumber
-  }
+mutation updateQuotation($updateQuoteInput: UpdateQuotationInput!){
+    updateQuotation(updateQuoteInput: $updateQuoteInput){
+        category
+        id
+        itemNumber
+        poNumber
+        stage
+        status
+        supplier
+    }
 }

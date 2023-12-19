@@ -1,7 +1,7 @@
-query findOneTemplate($id: String!) {
-  findOneTemplate(id: $id) {
-    dynamicFields
-    id
-    name
-  }
+query findOneTemplate($id: String!){
+    findOneTemplate(id: $id){
+        dynamicFields
+        id
+        name
+    }
 }

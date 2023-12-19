@@ -1,7 +1,11 @@
-mutation createQuotation($CreateQuotationInput: CreateQuotationInput!) {
-  createQuotation(CreateQuotationInput: $CreateQuotationInput) {
-    id
-    itemNumber
-    poNumber
-  }
+mutation createQuotation($CreateQuotationInput: CreateQuotationInput!){
+    createQuotation(CreateQuotationInput: $CreateQuotationInput){
+        category
+        id
+        itemNumber
+        poNumber
+        stage
+        status
+        supplier
+    }
 }

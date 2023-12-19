@@ -1,8 +1,8 @@
-mutation createSheet($createSheetInput: CreatesheetInput!) {
-  createSheet(createSheetInput: $createSheetInput) {
-    dynamicFields
-    id
-    name
-    quotationId
-  }
+mutation createSheet($createSheetInput: CreatesheetInput!){
+    createSheet(createSheetInput: $createSheetInput){
+        dynamicFields
+        id
+        name
+        quotationId
+    }
 }

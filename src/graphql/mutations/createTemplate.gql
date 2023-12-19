@@ -1,7 +1,0 @@
-mutation createTemplate($createTemplateInput: CreateTemplateInput!) {
-  createTemplate(createTemplateInput: $createTemplateInput) {
-    dynamicFields
-    id
-    name
-  }
-}
