@@ -1,0 +1,3 @@
+mutation removeQuotation($id: String!) {
+  removeQuotation(id: $id)
+}

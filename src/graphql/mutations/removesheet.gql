@@ -1,0 +1,3 @@
+mutation removesheet($id: String!) {
+  removesheet(id: $id)
+}

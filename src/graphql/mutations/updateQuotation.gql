@@ -1,0 +1,7 @@
+mutation updateQuotation($updateQuoteInput: UpdateQuotationInput!) {
+  updateQuotation(updateQuoteInput: $updateQuoteInput) {
+    id
+    itemNumber
+    poNumber
+  }
+}

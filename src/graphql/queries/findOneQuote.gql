@@ -1,0 +1,7 @@
+query findOneQuote($id: String!) {
+  findOneQuote(id: $id) {
+    id
+    itemNumber
+    poNumber
+  }
+}

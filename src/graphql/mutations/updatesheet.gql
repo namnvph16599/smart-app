@@ -1,0 +1,8 @@
+mutation updatesheet($updateSheetInput: UpdatesheetInput!) {
+  updatesheet(updateSheetInput: $updateSheetInput) {
+    dynamicFields
+    id
+    name
+    quotationId
+  }
+}

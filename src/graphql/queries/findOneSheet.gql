@@ -1,0 +1,8 @@
+query findOneSheet($id: String!) {
+  findOneSheet(id: $id) {
+    dynamicFields
+    id
+    name
+    quotationId
+  }
+}

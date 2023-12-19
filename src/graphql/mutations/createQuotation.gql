@@ -1,0 +1,7 @@
+mutation createQuotation($CreateQuotationInput: CreateQuotationInput!) {
+  createQuotation(CreateQuotationInput: $CreateQuotationInput) {
+    id
+    itemNumber
+    poNumber
+  }
+}
