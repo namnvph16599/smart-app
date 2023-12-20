@@ -9,11 +9,24 @@
 }
 
 .custom-handsontable {
-  background-color: #f0f0f0;
+ 
   /* Replace with your desired color */
 }
 
 .white-background {
   background-color: white;
   /* Setting the background to white */
+}
+
+.center-align {
+    text-align: center;
+      line-height: 30px;
+      /* Adjust if necessary to match your cell height */
+      vertical-align: middle;
+      font-weight: bold;
+      color: red;
+      /* Text color */
+      background-color: yellow;
+      /* Background color */
+    
 }

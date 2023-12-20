@@ -6,6 +6,9 @@ import 'handsontable/dist/handsontable.full.css';
 import './style.css'
 import HyperFormula from 'hyperformula';
 import { useFindOneTemplateQuery } from '../../graphql/queries/findOneTemplate.generated';
+import { Button, Col, Row } from 'antd';
+import { TimelineQuote } from '../quotation/components';
+import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 
 type CellStyle = {
     backgroundColor?: string;
@@ -21,6 +24,23 @@ interface Column {
   data: string;
   title:string;
   type:string;
+}
+
+interface Field {
+  fieldName: string;
+  type: string;
+}
+
+interface CellCoords {
+  row: number;
+  col: number;
+}
+
+interface ColumnSettings {
+  data: string;
+  type?: string;
+  title: string;
+  source?: string[];
 }
 
 
@@ -102,9 +122,25 @@ const ExcelToHandsontable: React.FC<ExcelToHandsontableProps> = ({ openTimeline 
     const template = useMemo(() => dataTemplate?.findOneTemplate, [dataTemplate]);
 
 
-const handsontableColumns = template?.dynamicFields?.map((field: { fieldName: any; type: any; }) => {
-  const column:any = { data: field.fieldName, title: field.fieldName};
+function columnIndexToLetter(index: number): string {
+  let letter = '';
+  let currentIndex = index;
+  while (currentIndex >= 0) {
+    letter = String.fromCharCode('A'.charCodeAt(0) + (currentIndex % 26)) + letter;
+    currentIndex = Math.floor(currentIndex / 26) - 1;
+  }
+  return letter;
+}
 
+const htmlRenderer: Handsontable.renderers.BaseRenderer = (instance: Handsontable, td: HTMLTableCellElement, row: number, col: number, prop: string | number, value: any, cellProperties: CellProperties) => {
+    Handsontable.renderers.HtmlRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
+    td.innerHTML = value; // Set the cell's HTML to the value
+  };
+
+const handsontableColumns = template?.dynamicFields?.map((field: Field, index: number) => {
+   const columnLetter = columnIndexToLetter(index); 
+  const column:any = {  title: `${field.fieldName}  (${columnLetter})`, renderer: htmlRenderer};
+ // data: field.fieldName,
   switch (field.type) {
     case "text":
       // No specific configuration needed for text
@@ -133,20 +169,25 @@ const handsontableColumns = template?.dynamicFields?.map((field: { fieldName: an
     useEffect(() => {
 
 
-        const fieldNames = template?.dynamicFields?.map((field: { fieldName: any; }) => field.fieldName);
-        const input1 = [fieldNames];
+        const fieldNames = template?.dynamicFields?.map((field: { fieldName: any; }) => field.fieldName) || [];
 
-        const numberOfRows = 100;
-        const numberOfColumns = 10;
-        const data = Array.from({ length: numberOfRows }, () => 
-        new Array(numberOfColumns).fill('')
-        );
+        // Determine the number of columns based on fieldNames length
+        const numberOfColumns = fieldNames.length;
 
-        console.log(JSON.stringify(input1) );
+        // Set the number of rows, including the header row
+        const numberOfRows = 100;/* your desired number of rows, including the header */;
 
-        console.log(JSON.stringify(handsontableColumns) );
+        // Initialize the data array with fieldNames as the first row
+        const data = Array.from({ length: numberOfRows }, (_,) =>
+    new Array(numberOfColumns).fill('')
+);
+
+        //console.log(JSON.stringify(input1) );
+
+        //console.log(JSON.stringify(data) );
         
         setData(data as Handsontable.CellValue[][]);
+        
         setColumns(handsontableColumns);
 
   }, [template, users]);
@@ -246,8 +287,8 @@ const handsontableColumns = template?.dynamicFields?.map((field: { fieldName: an
             return columnConfig;
             });
 
-        setColumns(columns);
-        console.log(columns);
+        //setColumns(columns);
+        console.log(jsonData);
         setData(jsonData as Handsontable.CellValue[][]);
     };
 
@@ -303,39 +344,208 @@ const handsontableColumns = template?.dynamicFields?.map((field: { fieldName: an
         return () => window.removeEventListener('resize', handleResize);
     }, [openTimeline]);
 
+    const handleCellMouseOver = (event: MouseEvent, coords: Handsontable.CellCoords, TD: HTMLTableCellElement) => {
+    if (coords.row < 0 || !hotTableRef.current?.hotInstance) {
+        return;
+    }
 
+    const hotInstance = hotTableRef.current.hotInstance;
+    const index = coords.row;
+
+    for (let i = 0; i < hotInstance.countCols(); i++) {
+        if (coords.col >= -1) {
+            hotInstance.setCellMeta(index, i, 'className', 'myRow');
+        }
+    }
+
+        hotInstance.render();
+    };
+
+    const handleCellMouseOut = (event: MouseEvent, coords: Handsontable.CellCoords, TD: HTMLTableCellElement) => {
+        if (!hotTableRef.current?.hotInstance) {
+            return;
+        }
+
+        const hotInstance = hotTableRef.current.hotInstance;
+        const index = coords.row;
+
+        for (let i = 0; i < hotInstance.countCols(); i++) {
+            if (coords.col >= -1) {
+                hotInstance.removeCellMeta(index, i, 'className', 'myRow');
+            }
+        }
+    };
+
+    const indexToColumnLetter = (index: number): string => {
+    let letter = '';
+    let tempIndex = index;
+    while (tempIndex >= 0) {
+        letter = String.fromCharCode('A'.charCodeAt(0) + (tempIndex % 26)) + letter;
+        tempIndex = Math.floor(tempIndex / 26) - 1;
+    }
+    return letter;
+};
+
+const customCellProperties = (row: number, col: number, prop: any) => {
+        const cellProperties: Partial<Handsontable.CellProperties> = {};
+        if (row === 0) {
+            cellProperties.readOnly = true;
+            
+        }
+        return cellProperties;
+    };
+
+    const addRows = (numberOfRowsToAdd: number): void => {
+        const newData = [...data, ...Array.from({ length: numberOfRowsToAdd }, () => new Array(columns.length).fill(''))];
+        setData(newData);
+    };
+
+    const afterScrollVertically = (): void => {
+        const instance = hotTableRef.current?.hotInstance;
+        if (instance && instance.rowIndexMapper.getRenderableIndexes().slice(-1)[0] === data.length - 1) {
+            addRows(5); // Add 5 more rows
+        }
+    };
+
+    const [selectedCell, setSelectedCell] = useState<{row: number, col: number} | null>(null);
+    const [cellValue, setCellValue] = useState<string | null>(null);
+
+    const handleAfterSelection = (row: number, column: number) => {
+    const instance = hotTableRef.current?.hotInstance;
+    if (instance) {
+      const value = instance.getDataAtCell(row, column);
+      setSelectedCell({ row, col: column });
+      setCellValue(value);
+    }
+  };
+
+  // This method updates the actual data in the Handsontable instance
+  // when the formula bar value changes
+  const handleFormulaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setCellValue(value);
+
+    if (selectedCell) {
+      const instance = hotTableRef.current?.hotInstance;
+      if (instance) {
+        instance.setDataAtCell(selectedCell.row, selectedCell.col, value);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const hotInstance = hotTableRef.current?.hotInstance;
+    const container = hotInstance?.rootElement;
+
+    const handleContextMenu = (event: MouseEvent) => {
+      event.preventDefault();
+    };
+
+    container?.addEventListener('contextmenu', handleContextMenu);
+
+    return () => {
+      container?.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, []);
+  
+
+  const insertImage = (file: File, row: number, col: number) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imgHtml = `<img src="${e.target?.result}" style="max-width: 100px; max-height: 100px;">`;
+      const newData = [...data];
+      newData[row][col] = imgHtml;
+      setData(newData);
+      hotTableRef.current?.hotInstance?.render();
+    };
+    reader.readAsDataURL(file);
+  };
+
+   const hotSettings: Handsontable.GridSettings = {
+    columns: columns,
+    data: data,
+    // ... other settings ...
+    contextMenu: {
+      items: {
+        "insert_image": {
+          name: 'Insert image',
+          callback: function(key, selections) {
+            if (key === 'insert_image' && selections.length > 0) {
+              const startRow = selections[0].start.row;
+              const startCol = selections[0].start.col;
+
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'image/*';
+              input.onchange = (e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) {
+                  insertImage(file, startRow, startCol);
+                }
+              };
+              input.click();
+            }
+          }
+        },
+        // ... other context menu items ...
+      }
+    },
+    // ... other settings ...
+  };
 
 
     const hyperFormulaInstance = HyperFormula.buildEmpty({});
 
     return (
-        <div id="handsontable-container">
 
-            <input type="file" onChange={handleFileChange} accept=".xlsx, .xls" />
-
-            <button onClick={handleSave}>Save Data</button>
-
+    <div id="handsontable-container" className="px-32px pb-32px">
+    <Row>
+      <Col span={20}><input
+                            type="text"
+                            value={cellValue || ''}
+                            onChange={handleFormulaChange}
+                            placeholder="Select a cell to edit its content"
+                        />
+        </Col>
+      <Col span={4}><input type="file" title='Import' onChange={handleFileChange} accept=".xlsx, .xls" /></Col>
+    </Row>
+           
+      <Row>
             <HotTable
                 className="white-background"
+                afterScrollVertically={afterScrollVertically}
                 data={data}
+                settings={hotSettings}
                 columns={columns}
+                colHeaders={["A", "1001", "1002", "1003", "1004", "1005"]}
                 ref={hotTableRef}
                 formulas={{
                     engine: hyperFormulaInstance,
                 }}
+                manualColumnResize={true}
+                manualRowResize={true}
+                autoColumnSize={false}
+                autoRowSize={true}
+                autoWrapRow={true}
+                autoWrapCol={true}
 
                 //cells={cellProperties}
-                afterOnCellMouseDown={handleCellClick}
-                colHeaders={true}
+                filters={true}
                 rowHeaders={true}
-                minSpareRows={0}
-                minSpareCols={0}
+                //minSpareRows={0}
+                //minSpareCols={0}
+                
+                //afterOnCellMouseOver={handleCellMouseOver}
+                //afterOnCellMouseOut={handleCellMouseOut}
+                //afterOnCellMouseDown={handleCellClick}
                 //height='auto'
                 licenseKey="non-commercial-and-evaluation"
                 stretchH="all"
-                 width={tableSize.width}
+                width={tableSize.width}
                 height={tableSize.height}
             />
+      </Row>
+            
         </div>
     );
 };
