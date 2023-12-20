@@ -498,7 +498,7 @@ const customCellProperties = (row: number, col: number, prop: any) => {
 
     return (
 
-    <div id="handsontable-container" className="px-32px pb-32px">
+    <div id="handsontable-container" className="px-5px pb-5px">
     <Row>
       <Col span={20}><input
                             type="text"
