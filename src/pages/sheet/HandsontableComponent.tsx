@@ -71,7 +71,7 @@ const ExcelToHandsontable: React.FC<ExcelToHandsontableProps> = ({ openTimeline 
    
 
 
-  const userNames = users.map((user) => user.name);
+  const userNames = users && users.map((user) => user.name);
 
 
     /*const columns: Handsontable.ColumnSettings[] = [
@@ -148,7 +148,7 @@ const handsontableColumns = template?.dynamicFields?.map((field: { fieldName: an
         setData(data as Handsontable.CellValue[][]);
         setColumns(handsontableColumns);
 
-  }, [template]);
+  }, [template, users]);
 
  
 
