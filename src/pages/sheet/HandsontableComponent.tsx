@@ -114,6 +114,7 @@ const handsontableColumns = template?.dynamicFields?.map((field: { fieldName: an
     case "number":
       column.type = "numeric";
       break;
+    case "array":
     case "dropdownlist":
       column.type = "dropdown";
       // You would need to fetch the dropdown data from the URL provided

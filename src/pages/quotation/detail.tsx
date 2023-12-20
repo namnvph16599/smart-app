@@ -13,6 +13,7 @@ import AddUserIcon from "../../assets/icons/add-user.svg?react";
 import ArrowBottom from "../../assets/icons/arrow-bottom.svg?react";
 import { TimelineQuote } from "./components";
 import ExcelToHandsontable from "../sheet/HandsontableComponent";
+import { useNavigate } from "react-router-dom";
 
 //Or, to reduce the size of your JavaScript bundle, import only the modules that you need.
 registerAllModules();
@@ -26,6 +27,8 @@ const StepLabel = memo(({ name }: { name: string }) => {
 });
 
 const QuotaionDetail = memo(() => {
+
+  const navigate = useNavigate();
   const [openTimeline, setOpenTimeLine] = useState(false);
 
   const [data, setData] = useState<any[]>([]);
@@ -103,7 +106,9 @@ const QuotaionDetail = memo(() => {
                 <ArrowBottom />
               </Space>
             </Button>
-            <Button>Cancel</Button>
+            <Button onClick={() => {
+                  navigate(-1);
+                }}>Cancel</Button>
             <Button type="primary" className="bg-greens-normal">
               Save
             </Button>
