@@ -515,7 +515,7 @@ const customCellProperties = (row: number, col: number, prop: any) => {
 
 
 
-   const handleCellChange = (
+   const handleCellChange1 = (
         changes: Handsontable.CellChange[] | null, 
         source: Handsontable.ChangeSource
     ) => {
@@ -545,15 +545,13 @@ const handleFormulaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     // Don't update the Handsontable data here; let the debounced function or enter key handle it
 };*/
 
-const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+const handleKeyDown1 = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter' && selectedCell) {
         updateCellValue();
     }
 };
 
-const handleFormulaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCellValue(event.target.value);
-};
+
 
 const updateCellValue = () => {
     if (selectedCell) {
@@ -562,6 +560,75 @@ const updateCellValue = () => {
         newData[row][column] = cellValue;
         setData(newData);
     }
+};
+
+const handleCellChange = (changes: any) => {
+    if (changes) {
+      // Deep clone the data array to avoid direct state mutation
+      const newData = _.cloneDeep(data);
+
+      // Apply changes
+      changes.forEach(([row, col, oldValue, newValue]: [number, number, any, any]) => {
+        newData[row][col] = newValue;
+      });
+
+      // Update state
+      setData(newData);
+    }
+  };
+
+  const handleFormulaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const newValue = event.target.value;
+
+  if (selectedCell) {
+    const [row, col] = selectedCell;
+    const newData = [...data]; // Clone the data array
+    newData[row][col] = newValue; // Update the specific cell
+    setData(newData); // Set the new data
+  }
+};
+
+
+const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  // Check if the Enter key is pressed
+  if (event.key === 'Enter' && selectedCell) {
+    const [row, col] = selectedCell;
+    const inputElement = event.target as HTMLInputElement;
+    const formulaValue = inputElement.value;
+
+    // Process the formula
+    const result = processFormula(formulaValue);
+
+    // Update the Handsontable data
+    const newData = [...data];
+    newData[row][col] = result;
+    setData(newData);
+
+    // Move the focus out of the current cell
+    // Option 1: Move to the next cell (if required)
+    // navigateToNextCell(row, col); // Implement this as per your requirement
+
+    // Option 2: Simply blur the input to remove focus
+    inputElement.blur();
+
+    // Optionally, clear the textbox or perform other actions
+    // inputElement.value = '';
+  }
+};
+
+// Implement a function to process the formula
+// This is a placeholder function, you'll need to implement the logic based on your requirements
+const processFormula = (formula: string): any => {
+  // Example: Simple arithmetic evaluation
+  try {
+    // Evaluate the formula
+    // Caution: This is a simple example and has security implications. 
+    // In a real-world application, you should use a proper library to safely evaluate formulas.
+    return eval(formula);
+  } catch (error) {
+    console.error("Error processing formula", error);
+    return formula; // Return the original formula in case of an error
+  }
 };
 
 
@@ -574,11 +641,11 @@ const updateCellValue = () => {
         <Col span={1}>
         <Input value={cellPosition || ''} className='pb-5px pr-6px'
                             
-                            style={{ paddingRight: '10px' }}/>
+                            style={{ paddingRight: '10px' }}/>  
                            
         </Col>
-      <Col span={10}>
-        <Input className='pb-5px' style={{ paddingLeft: '10px' }}
+      <Col span={10} style={{ paddingLeft: '6px' }}>
+        <Input className='pb-5px' 
                             width={200}
                             value={selectedCell ? data[selectedCell[0]][selectedCell[1]] : ''}
                             onChange={handleFormulaChange}
@@ -599,8 +666,9 @@ const updateCellValue = () => {
                 data={data}
                 settings={hotSettings}
                 afterSelectionEnd={handleCellSelection}
-                
                 afterChange={handleCellChange}
+                
+
                 columns={columns}
                 ref={hotTableRef}
                 formulas={{
