@@ -1,7 +1,9 @@
 import { createBrowserRouter } from 'react-router-dom';
 import AppRoutes from './app-router';
 import {
+  CodePage,
   DashboardPage,
+  HomePage,
   LoginPage,
   QuotationDetailPage,
   QuotationPage,
@@ -15,22 +17,31 @@ import MainLayout from '../layout/main-layout';
 const useRouter = () => {
   return createBrowserRouter([
     {
-      path: AppRoutes.auth.index,
+      path: AppRoutes.home,
+      element: <PrivateRoute isAuthRoute isPrivate={false} />,
       children: [
+        {
+          path: AppRoutes.home,
+          element: <HomePage />,
+        },
         {
           path: AppRoutes.auth.login,
           element: <LoginPage />,
         },
+        {
+          path: '/authorizationcode',
+          element: <CodePage />,
+        },
       ],
     },
-    {
-      path: AppRoutes.home,
-      element: <PrivateRoute layout={MainLayout} />,
 
+    {
+      path: AppRoutes.admin,
+      element: <PrivateRoute layout={MainLayout} isPrivate />,
       children: [
         {
-          path: AppRoutes.home,
-          element: <QuotationPage />,
+          path: AppRoutes.admin,
+          element: <DashboardPage />,
         },
         {
           path: AppRoutes.dashboard.value,

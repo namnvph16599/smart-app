@@ -1,10 +1,11 @@
-import { QueryClient, QueryClientProvider } from "react-query";
-import { ApolloProvider } from "@apollo/client";
-import { ConfigProvider, ThemeConfig } from "antd";
-import { client as apolloClient } from "./apollo";
-import AppRouter from "./app-router";
-import "./styles/App.css";
-import "handsontable/dist/handsontable.full.min.css";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ApolloProvider } from '@apollo/client';
+import { ConfigProvider, ThemeConfig } from 'antd';
+import { client as apolloClient } from './apollo';
+import AppRouter from './app-router';
+import './styles/App.css';
+import 'handsontable/dist/handsontable.full.min.css';
+import { AuthProvider, DialogProvider } from './contexts';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,33 +20,33 @@ const queryClient = new QueryClient({
 const antdTheme: ThemeConfig = {
   components: {
     Input: {
-      colorBorder: "#94A3B8",
+      colorBorder: '#94A3B8',
       controlHeightSM: 40,
       fontSize: 14,
-      fontFamily: "Lexend",
-      hoverBorderColor: "#1B998B",
-      activeBorderColor: "#1B998B",
+      fontFamily: 'Lexend',
+      hoverBorderColor: '#1B998B',
+      activeBorderColor: '#1B998B',
       controlHeight: 40,
       controlHeightLG: 56,
     },
     Button: {
-      colorPrimaryBg: "#1B998B",
-      colorPrimaryBgHover: "#1B998B",
-      defaultColor: "#1B998B",
+      colorPrimaryBg: '#1B998B',
+      colorPrimaryBgHover: '#1B998B',
+      defaultColor: '#1B998B',
       fontWeight: 500,
       fontSize: 14,
       controlHeight: 40,
-      fontFamily: "Lexend",
-      colorPrimaryHover: "#1B998B",
+      fontFamily: 'Lexend',
+      colorPrimaryHover: '#1B998B',
     },
     Steps: {
-      colorPrimary: "#1B998B",
+      colorPrimary: '#1B998B',
     },
     Select: {
       controlHeight: 40,
     },
     Spin: {
-      colorBgBase: "#1B998B",
+      colorBgBase: '#1B998B',
     },
   },
 };
@@ -55,7 +56,11 @@ function App() {
     <ApolloProvider client={apolloClient}>
       <QueryClientProvider client={queryClient}>
         <ConfigProvider theme={antdTheme}>
-          <AppRouter />
+          <DialogProvider>
+            <AuthProvider>
+              <AppRouter />
+            </AuthProvider>
+          </DialogProvider>
         </ConfigProvider>
       </QueryClientProvider>
     </ApolloProvider>

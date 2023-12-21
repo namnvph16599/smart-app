@@ -1,1 +1,1 @@
-export * from "./use-dynamic-svg-import";
+export * from './use-dynamic-svg-import';

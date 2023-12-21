@@ -1,9 +1,10 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
-import { Avatar, Button, Layout, Popover } from "antd";
-import { UserOutlined } from "@ant-design/icons";
-import { memo, useEffect, useState } from "react";
-import AppRoutes from "../routers/app-router";
-import Logo from "../assets/images/header-icon.png";
+import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Avatar, Button, Layout, Popover } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import { memo, useEffect, useState } from 'react';
+import AppRoutes from '../routers/app-router';
+import Logo from '../assets/images/header-icon.png';
+import { useAuth } from '../contexts';
 
 const MENUS = [
   {
@@ -22,6 +23,7 @@ const MENUS = [
 
 const MainLayout = memo(() => {
   const location = useLocation();
+  const { logout } = useAuth();
   const [active, setActive] = useState(AppRoutes.dashboard.value);
 
   useEffect(() => {
@@ -63,13 +65,11 @@ const MainLayout = memo(() => {
                     setActive(value);
                   }}
                   to={value}
-                  className="ml-[24px]"
-                >
+                  className="ml-[24px]">
                   <span
                     className={`font-medium text-14px leading-18px ${
-                      active === value ? "text-greens-normal" : "text-grey-900"
-                    }`}
-                  >
+                      active === value ? 'text-greens-normal' : 'text-grey-900'
+                    }`}>
                     {label}
                   </span>
                 </Link>
@@ -124,19 +124,16 @@ const MainLayout = memo(() => {
             content={
               <div>
                 <div className="hover:bg-[#f9f9f9]">
-                  <Button type="link">
-                    <span className="text-grayscale-black">Logout</span>
+                  <Button type="link" onClick={() => logout()}>
+                    Logout
                   </Button>
                 </div>
               </div>
             }
-            placement="bottom"
-          >
+            placement="bottom">
             <div className="flex items-center group ml-[64px] hover:cursor-pointer">
               <Avatar size={30} icon={<UserOutlined />} />
-              <span className="font-medium text-14px leading-18px text-grey-900 pl-8px">
-                thinh@gmail.com
-              </span>
+              <span className="font-medium text-14px leading-18px text-grey-900 pl-8px">thinh@gmail.com</span>
             </div>
           </Popover>
         </nav>

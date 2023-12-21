@@ -1,30 +1,31 @@
 const AppRoutes = {
-  home: "/",
+  home: '/',
+  admin: '/admin',
   dashboard: {
-    label: "Dashboard",
-    value: "/dashboard",
+    label: 'Dashboard',
+    value: '/admin/dashboard',
   },
   quotation: {
-    label: "Quotation",
-    value: "/quotation",
+    label: 'Quotation',
+    value: '/admin/quotation',
     detail: {
-      value: "/quotation/:id",
-      id: (id: string | number) => "/quotation/" + id,
+      value: '/admin/quotation/:id',
+      id: (id: string | number) => '/admin/quotation/' + id,
     },
   },
   template: {
-    label: "Template",
-    value: "/template",
-    create: "/template/create",
+    label: 'Template',
+    value: '/admin/template',
+    create: '/admin/template/create',
     detail: {
-      value: "/template/:id",
-      id: (id: string) => "/template/" + id,
+      value: '/admin/template/:id',
+      id: (id: string) => '/admin/template/' + id,
     },
   },
-  notFound: "/404",
+  notFound: '/404',
   auth: {
-    index: "/auth",
-    login: "/auth/login",
+    index: '/auth',
+    login: '/login',
   },
 };
 
