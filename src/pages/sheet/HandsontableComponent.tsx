@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HotTable } from '@handsontable/react';
 import Handsontable from 'handsontable';
 import * as XLSX from 'xlsx';
@@ -449,37 +449,7 @@ const customCellProperties = (row: number, col: number, prop: any) => {
     reader.readAsDataURL(file);
   };
 
-   const hotSettings: Handsontable.GridSettings = {
-    columns:columns,
-    data: data,
-    // ... other settings ...
-    contextMenu: {
-      items: {
-        "insert_image": {
-          name: 'Insert image',
-          callback: function(key, selections) {
-            if (key === 'insert_image' && selections.length > 0) {
-              const startRow = selections[0].start.row;
-              const startCol = selections[0].start.col;
-
-              const input = document.createElement('input');
-              input.type = 'file';
-              input.accept = 'image/*';
-              input.onchange = (e) => {
-                const file = (e.target as HTMLInputElement).files?.[0];
-                if (file) {
-                  insertImage(file, startRow, startCol);
-                }
-              };
-              input.click();
-            }
-          }
-        },
-        // ... other context menu items ...
-      }
-    },
-    // ... other settings ...
-  };
+   
 
 
    const [cellPosition, setCellPosition] = useState<string>('');
@@ -507,6 +477,8 @@ const customCellProperties = (row: number, col: number, prop: any) => {
     const columnLetter = columnIndexToLetter1(column);
     const newPosition = `${columnLetter}${row + 1}`;
     const newValue = data[row][column];
+
+    setHighlightedCell([row, column]);
 
     setSelectedCell([row, column]);
     setCellPosition(newPosition);
@@ -632,6 +604,103 @@ const processFormula = (formula: string): any => {
 };
 
 
+
+// add new
+
+const [highlightedCell, setHighlightedCell] = useState<[number, number] | null>(null);
+  
+ const columnLabelToIndex = useCallback((label: string): number => {
+    let column = 0;
+    for (let i = 0; i < label.length; i++) {
+      column *= 26;
+      column += label.charCodeAt(i) - 'A'.charCodeAt(0) + 1;
+    }
+    return column - 1; // Convert to zero-based index
+  }, []);
+
+  const parseCellPosition = useCallback((position: string): [number, number] | null => {
+    const match = position.match(/^([A-Z]+)(\d+)$/);
+    if (match) {
+      const col = columnLabelToIndex(match[1]);
+      const row = parseInt(match[2], 10) - 1; // Convert to zero-based index
+      return [row, col];
+    }
+    return null;
+  }, [columnLabelToIndex]);
+
+  const handleSecondTextboxFocus = useCallback(() => {
+    const parsedPosition = parseCellPosition(cellPosition);
+    if (parsedPosition) {
+      setHighlightedCell(parsedPosition);
+    } else {
+      setHighlightedCell(null);
+    }
+  }, [cellPosition, parseCellPosition]);
+
+  useEffect(() => {
+  // Check if hotInstance is available before calling render
+  if (highlightedCell && hotTableRef.current && hotTableRef.current.hotInstance) {
+    hotTableRef.current.hotInstance.render();
+  }
+}, [highlightedCell]);
+
+
+
+  useEffect(() => {
+    if (hotTableRef.current && hotTableRef.current.hotInstance) {
+      hotTableRef.current.hotInstance.render();
+    }
+  }, [highlightedCell]);
+
+
+
+    const hotSettings: Handsontable.GridSettings = {
+    columns:columns,
+    data: data,
+    cells: function (row, col, prop) {
+    // Typecast the empty object to Handsontable.CellProperties
+    const cellProperties = {} as Handsontable.CellProperties;
+
+    if (highlightedCell && row === highlightedCell[0] && col === highlightedCell[1]) {
+      cellProperties.renderer = (instance, td, row, col, prop, value, cellProps) => {
+        Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProps]);
+        //td.style.background = '#ffcccc'; // Apply highlighting style
+        td.style.border = '1px solid blue';
+      };
+    }
+
+    return cellProperties;
+  },
+    // ... other settings ...
+    contextMenu: {
+      items: {
+        "insert_image": {
+          name: 'Insert image',
+          callback: function(key, selections) {
+            if (key === 'insert_image' && selections.length > 0) {
+              const startRow = selections[0].start.row;
+              const startCol = selections[0].start.col;
+
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'image/*';
+              input.onchange = (e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) {
+                  insertImage(file, startRow, startCol);
+                }
+              };
+              input.click();
+            }
+          }
+        },
+        // ... other context menu items ...
+      }
+    },
+    // ... other settings ...
+  };
+
+
     const hyperFormulaInstance = HyperFormula.buildEmpty({});
 
     return (
@@ -650,6 +719,8 @@ const processFormula = (formula: string): any => {
                             value={selectedCell ? data[selectedCell[0]][selectedCell[1]] : ''}
                             onChange={handleFormulaChange}
                             onKeyDown={handleKeyDown}
+
+                            onFocus={handleSecondTextboxFocus}
                             placeholder="Select a cell to edit its content" />
 
                             <div style={{ paddingTop: '3px' }}/>
