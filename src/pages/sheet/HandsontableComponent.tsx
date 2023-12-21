@@ -478,6 +478,8 @@ const customCellProperties = (row: number, col: number, prop: any) => {
     const newPosition = `${columnLetter}${row + 1}`;
     const newValue = data[row][column];
 
+    setHighlightedCell([row, column]);
+
     setSelectedCell([row, column]);
     setCellPosition(newPosition);
     setCellValue(newValue);
@@ -644,21 +646,27 @@ const [highlightedCell, setHighlightedCell] = useState<[number, number] | null>(
 
 
 
+  useEffect(() => {
+    if (hotTableRef.current && hotTableRef.current.hotInstance) {
+      hotTableRef.current.hotInstance.render();
+    }
+  }, [highlightedCell]);
+
+
+
     const hotSettings: Handsontable.GridSettings = {
     columns:columns,
     data: data,
     cells: function (row, col, prop) {
-    const cellProperties: Handsontable.CellProperties = {};
+    // Typecast the empty object to Handsontable.CellProperties
+    const cellProperties = {} as Handsontable.CellProperties;
 
-    // Check if this is the cell to be highlighted
     if (highlightedCell && row === highlightedCell[0] && col === highlightedCell[1]) {
       cellProperties.renderer = (instance, td, row, col, prop, value, cellProps) => {
         Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProps]);
-        td.style.background = '#ffcccc'; // Apply highlighting style
+        //td.style.background = '#ffcccc'; // Apply highlighting style
+        td.style.border = '1px solid blue';
       };
-    } else {
-      // Apply default text renderer for other cells
-      cellProperties.renderer = Handsontable.renderers.TextRenderer;
     }
 
     return cellProperties;
