@@ -9,6 +9,8 @@ import { useFindOneTemplateQuery } from '../../graphql/queries/findOneTemplate.g
 import { Button, Col, Row } from 'antd';
 import { TimelineQuote } from '../quotation/components';
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
+import { Input } from 'antd';
+import _ from 'lodash';
 
 type CellStyle = {
     backgroundColor?: string;
@@ -18,6 +20,11 @@ type CellStyle = {
 type ExcelToHandsontableProps = {
     openTimeline: boolean;
 };
+
+interface ChangeEvent {
+        changes: Handsontable.CellChange[] | null;
+        source: Handsontable.ChangeSource;
+    }
 
 interface Column {
   // Define the properties of your column objects here
@@ -42,6 +49,7 @@ interface ColumnSettings {
   title: string;
   source?: string[];
 }
+
 
 
 type Styles = {
@@ -407,31 +415,11 @@ const customCellProperties = (row: number, col: number, prop: any) => {
         }
     };
 
-    const [selectedCell, setSelectedCell] = useState<{row: number, col: number} | null>(null);
-    const [cellValue, setCellValue] = useState<string | null>(null);
-
-    const handleAfterSelection = (row: number, column: number) => {
-    const instance = hotTableRef.current?.hotInstance;
-    if (instance) {
-      const value = instance.getDataAtCell(row, column);
-      setSelectedCell({ row, col: column });
-      setCellValue(value);
-    }
-  };
+    
 
   // This method updates the actual data in the Handsontable instance
   // when the formula bar value changes
-  const handleFormulaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setCellValue(value);
-
-    if (selectedCell) {
-      const instance = hotTableRef.current?.hotInstance;
-      if (instance) {
-        instance.setDataAtCell(selectedCell.row, selectedCell.col, value);
-      }
-    }
-  };
+ 
 
   useEffect(() => {
     const hotInstance = hotTableRef.current?.hotInstance;
@@ -462,7 +450,7 @@ const customCellProperties = (row: number, col: number, prop: any) => {
   };
 
    const hotSettings: Handsontable.GridSettings = {
-    columns: columns,
+    columns:columns,
     data: data,
     // ... other settings ...
     contextMenu: {
@@ -494,19 +482,113 @@ const customCellProperties = (row: number, col: number, prop: any) => {
   };
 
 
+   const [cellPosition, setCellPosition] = useState<string>('');
+    const [cellValue, setCellValue] = useState<any>(''); // Replace 'any' with a more specific type if possible
+
+    const columnIndexToLetter1 = (columnIndex: number): string => {
+    let letter = '';
+    let tempIndex = columnIndex + 1; // Adjust because spreadsheet columns start at 1
+
+    while (tempIndex > 0) {
+        let mod = (tempIndex - 1) % 26;
+        letter = String.fromCharCode(65 + mod) + letter;
+        tempIndex = Math.floor((tempIndex - mod) / 26);
+    }
+
+    return letter;
+};
+
+
+    // Event handler for cell selection
+    const handleCellSelection = (
+    row: number, column: number, row2: number, column2: number, 
+    selectionLayerLevel: number
+) => {
+    const columnLetter = columnIndexToLetter1(column);
+    const newPosition = `${columnLetter}${row + 1}`;
+    const newValue = data[row][column];
+
+    setSelectedCell([row, column]);
+    setCellPosition(newPosition);
+    setCellValue(newValue);
+};
+
+
+
+   const handleCellChange = (
+        changes: Handsontable.CellChange[] | null, 
+        source: Handsontable.ChangeSource
+    ) => {
+        if (changes && changes.length > 0) {
+            // Check if the source is one of the user-initiated actions (adjust as per your requirement)
+            if (source === 'edit') {  // or other relevant sources
+                const [, , , newValue] = changes[0];
+                setCellValue(newValue as string);  // Update value with the new value
+            }
+        }
+    };
+
+
+     const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null);
+
+    
+
+    const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && selectedCell) {
+        updateCellValue();
+    }
+};
+
+/*
+const handleFormulaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setCellValue(event.target.value);
+    // Don't update the Handsontable data here; let the debounced function or enter key handle it
+};*/
+
+const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && selectedCell) {
+        updateCellValue();
+    }
+};
+
+const handleFormulaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setCellValue(event.target.value);
+};
+
+const updateCellValue = () => {
+    if (selectedCell) {
+        const [row, column] = selectedCell;
+        const newData = [...data];
+        newData[row][column] = cellValue;
+        setData(newData);
+    }
+};
+
+
     const hyperFormulaInstance = HyperFormula.buildEmpty({});
 
     return (
 
-    <div id="handsontable-container" className="px-5px pb-5px">
+    <div id="handsontable-container" className="px-5px pb-32px">
     <Row>
-      <Col span={20}><input
-                            type="text"
-                            value={cellValue || ''}
-                            onChange={handleFormulaChange}
-                            placeholder="Select a cell to edit its content"
-                        />
+        <Col span={1}>
+        <Input value={cellPosition || ''} className='pb-5px pr-6px'
+                            
+                            style={{ paddingRight: '10px' }}/>
+                           
         </Col>
+      <Col span={10}>
+        <Input className='pb-5px' style={{ paddingLeft: '10px' }}
+                            width={200}
+                            value={selectedCell ? data[selectedCell[0]][selectedCell[1]] : ''}
+                            onChange={handleFormulaChange}
+                            onKeyDown={handleKeyDown}
+                            placeholder="Select a cell to edit its content" />
+
+                            <div style={{ paddingTop: '3px' }}/>
+    
+        </Col>
+        <Col span={8}><div></div></Col>
       <Col span={4}><input type="file" title='Import' onChange={handleFileChange} accept=".xlsx, .xls" /></Col>
     </Row>
            
@@ -516,8 +598,10 @@ const customCellProperties = (row: number, col: number, prop: any) => {
                 afterScrollVertically={afterScrollVertically}
                 data={data}
                 settings={hotSettings}
+                afterSelectionEnd={handleCellSelection}
+                
+                afterChange={handleCellChange}
                 columns={columns}
-                colHeaders={["A", "1001", "1002", "1003", "1004", "1005"]}
                 ref={hotTableRef}
                 formulas={{
                     engine: hyperFormulaInstance,
