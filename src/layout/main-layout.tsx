@@ -5,6 +5,7 @@ import { memo, useEffect, useState } from 'react';
 import AppRoutes from '../routers/app-router';
 import Logo from '../assets/images/header-icon.png';
 import { useAuth } from '../contexts';
+import { STORAGE_KEYS } from '../constants';
 
 const MENUS = [
   {
@@ -48,6 +49,17 @@ const MainLayout = memo(() => {
     //   setActive(APP_ROUTER.DASHBOARD);
     // }
   }, [location]);
+
+  const [email, setEmail] = useState();
+
+  useEffect(() => {
+        const mail:any = localStorage.getItem(STORAGE_KEYS.mail);
+        setEmail(mail);
+    }, []);
+//thinh@gmail.com
+  
+
+  
 
   return (
     <Layout>
@@ -133,7 +145,7 @@ const MainLayout = memo(() => {
             placement="bottom">
             <div className="flex items-center group ml-[64px] hover:cursor-pointer">
               <Avatar size={30} icon={<UserOutlined />} />
-              <span className="font-medium text-14px leading-18px text-grey-900 pl-8px">thinh@gmail.com</span>
+              <span className="font-medium text-14px leading-18px text-grey-900 pl-8px">{email}</span>
             </div>
           </Popover>
         </nav>
