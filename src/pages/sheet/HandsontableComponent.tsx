@@ -835,7 +835,7 @@ const [highlightedCell, setHighlightedCell] = useState<[number, number] | null>(
                             onKeyDown={handleKeyDown}
 
                             onFocus={handleSecondTextboxFocus}
-                            placeholder="Select a cell to edit its content" />
+                            placeholder="Select a cell to input formula" />
 
                             <div style={{ paddingTop: '3px' }}/>
     
