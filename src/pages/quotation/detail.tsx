@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppLocation } from '../../components';
 import AppRoutes from '../../routers/app-router';
 import { Button, Col, Row, Space, Spin, Steps } from 'antd';
@@ -12,7 +12,7 @@ import Handsontable from 'handsontable';
 import AddUserIcon from '../../assets/icons/add-user.svg?react';
 import ArrowBottom from '../../assets/icons/arrow-bottom.svg?react';
 import { TimelineQuote } from './components';
-import ExcelToHandsontable from '../sheet/HandsontableComponent';
+import ExcelToHandsontable, { ExcelToHandsontableRef } from '../sheet/HandsontableComponent';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useFindOneSheetQuery } from '../../graphql/queries/findOneSheet.generated';
 import { useCreateSheetMutation } from '../../graphql/mutations/createSheet.generated';
@@ -31,6 +31,8 @@ const StepLabel = memo(({ name }: { name: string }) => {
 
 const QuotaionDetail = memo(() => {
   const { id } = useParams();
+
+  const excelToHandsontableRef = useRef<ExcelToHandsontableRef>(null);
 
   const navigate = useNavigate();
   const [openTimeline, setOpenTimeLine] = useState(false);
@@ -60,12 +62,25 @@ const QuotaionDetail = memo(() => {
   });
 
   const handleCreateSheet = useCallback(() => {
-    createSheetAsync({
-      variables: {
-        // input
-      },
-    });
-  }, [createSheetAsync]);
+    const handsontableData = excelToHandsontableRef.current?.getData();
+    //console.log(handsontableData);
+
+    if (handsontableData) {
+     
+        console.log(JSON.stringify(handsontableData));
+        const input = {
+        name: "googo",
+        quotationId:"6579a54176def105b6d00dad",
+        dynamicFields: handsontableData,
+      };
+
+        createSheetAsync({
+          variables: {
+            createSheetInput: input,
+          },
+        });
+    }
+}, [createSheetAsync]);
 
   const loading = useMemo(() => creating || getting, [creating, getting]);
 
@@ -196,7 +211,7 @@ const QuotaionDetail = memo(() => {
           </Col>
           <Col span={openTimeline ? 20 : 24}>
             <div style={{ width: '100%' }}>
-              <ExcelToHandsontable openTimeline={openTimeline} />
+              <ExcelToHandsontable openTimeline={openTimeline} ref={excelToHandsontableRef}/>
               {/* <HotTable
               data={data}
               columns={columns}

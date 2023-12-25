@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { HotTable } from '@handsontable/react';
 import Handsontable from 'handsontable';
 import * as XLSX from 'xlsx';
@@ -11,6 +11,7 @@ import { TimelineQuote } from '../quotation/components';
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { Input } from 'antd';
 import _ from 'lodash';
+import { useFindOneSheetQuery } from '../../graphql/queries/findOneSheet.generated';
 
 type CellStyle = {
     backgroundColor?: string;
@@ -26,17 +27,23 @@ interface ChangeEvent {
         source: Handsontable.ChangeSource;
     }
 
-interface Column {
-  // Define the properties of your column objects here
+    
+type Column = {
   data: string;
-  title:string;
-  type:string;
-}
+  title: string;
+  type: string;
+  renderer?: any; // Define more specific type if available
+  source?: string[]; // For dropdown columns
+};
 
 interface Field {
   fieldName: string;
   type: string;
 }
+
+type DataRow = {
+  [key: string]: Handsontable.CellValue;
+};
 
 interface CellCoords {
   row: number;
@@ -55,10 +62,15 @@ interface ColumnSettings {
 type Styles = {
     [cellRef: string]: CellStyle;
 };
-const ExcelToHandsontable: React.FC<ExcelToHandsontableProps> = ({ openTimeline }) => {
+
+export interface ExcelToHandsontableRef {
+  getData: () => any;
+}
+
+const ExcelToHandsontable = forwardRef<ExcelToHandsontableRef, ExcelToHandsontableProps>((props, ref) => {
     const [data, setData] = useState<Handsontable.CellValue[][]>([]);
     const [columns, setColumns] = useState<Column[]>([]);
-
+    const { openTimeline } = props;
 
     const [styles, setStyles] = useState<any>();
     const hotTableRef = useRef<HotTable>(null);
@@ -119,6 +131,14 @@ const ExcelToHandsontable: React.FC<ExcelToHandsontableProps> = ({ openTimeline 
         },
     ];*/
 
+    const { data:sheetTemplate, loading: gettingSheet } = useFindOneSheetQuery({
+        variables: {
+          id: "65804c236a94f3035dc8fe82",
+        },
+    });
+
+    const sheet = useMemo(() => sheetTemplate?.findOneSheet, [sheetTemplate]);
+
 
     const { data:dataTemplate, loading: getting } = useFindOneTemplateQuery({
         variables: {
@@ -145,9 +165,26 @@ const htmlRenderer: Handsontable.renderers.BaseRenderer = (instance: Handsontabl
     td.innerHTML = value; // Set the cell's HTML to the value
   };
 
+
+  function toCamelCase(input: string): string {
+    return input
+        // Trim leading/trailing spaces and convert to lowercase
+        .trim().toLowerCase()
+        // Split by spaces
+        .split(' ')
+        // Filter out empty strings (in case of multiple consecutive spaces)
+        .filter(word => word)
+        // Convert the first letter of each word (except the first) to uppercase
+        .map((word, index) => 
+            index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
+        )
+        // Join the words without spaces
+        .join('');
+}
+
 const handsontableColumns = template?.dynamicFields?.map((field: Field, index: number) => {
    const columnLetter = columnIndexToLetter(index); 
-  const column:any = {  title: `${field.fieldName}  (${columnLetter})`, renderer: htmlRenderer};
+  const column:any = { data: toCamelCase(field.fieldName) , title: `${field.fieldName}  (${columnLetter})`, renderer: htmlRenderer};
  // data: field.fieldName,
   switch (field.type) {
     case "text":
@@ -176,29 +213,43 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
 
     useEffect(() => {
 
+         if (data?.length == 0 && template && handsontableColumns) {
+          const fieldNames = template.dynamicFields?.map((field: { fieldName: any; }) => field.fieldName) || [];
+          const numberOfColumns = fieldNames.length;
 
-        const fieldNames = template?.dynamicFields?.map((field: { fieldName: any; }) => field.fieldName) || [];
+          setColumns(handsontableColumns);
+         
+          const numberOfRows = 100;
 
-        // Determine the number of columns based on fieldNames length
-        const numberOfColumns = fieldNames.length;
+          const emptyRow = handsontableColumns.reduce((acc: { [x: string]: string; }, column: { data: string | number; }) => {
+            acc[column.data] = '';
+            return acc;
+          }, {});
 
-        // Set the number of rows, including the header row
-        const numberOfRows = 100;/* your desired number of rows, including the header */;
+          /*
+          const emptyRow = {
+            itemNumber: '',
+            ponumber: '',
+            total: '',
+            cost: '',
+            customer: '',
+            country23123123123: '',
+          };*/
 
-        // Initialize the data array with fieldNames as the first row
-        const data = Array.from({ length: numberOfRows }, (_,) =>
-    new Array(numberOfColumns).fill('')
-);
+          const data = Array.from({ length: numberOfRows }, () => ({ ...emptyRow }));
 
-        //console.log(JSON.stringify(input1) );
 
-        //console.log(JSON.stringify(data) );
-        
-        setData(data as Handsontable.CellValue[][]);
-        
-        setColumns(handsontableColumns);
+          if(sheet)
+          {
+            setData(sheet.dynamicFields as Handsontable.CellValue[][]);
+            console.log(sheet);
+            return;
+          }
+          setData(data as Handsontable.CellValue[][]);
+          
+        }
 
-  }, [template, users]);
+  }, [!data, template,  handsontableColumns, sheet]);
 
  
 
@@ -266,7 +317,44 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
         return style;
     };
 
-    
+
+
+    const transformData = (handsontableData: Handsontable.CellValue[][]) => {
+    const columnNames = handsontableColumns.map((column: { data: any; }) => column.data);
+
+    return handsontableData.map(row => {
+      const rowData: DataRow = {};
+      row.forEach((cell, index) => {
+        const columnName = columnNames[index];
+        rowData[columnName] = cell;
+      });
+      return rowData;
+    });
+  };
+
+  useImperativeHandle(ref, () => ({
+    getData: () => {
+
+      const rawHandsontableData = hotTableRef.current?.hotInstance?.getData() || [];
+      return transformData(rawHandsontableData);
+    }
+  }));
+
+    function composeData(jsonData: any): Array<{ [key: string]: string | number }> {
+  const headerRow = jsonData[0];
+  const dataWithoutHeader = jsonData.slice(1);
+
+  const composedData = dataWithoutHeader.map((row: { [x: string]: string | number; }) => {
+    const composedObject: { [key: string]: string | number } = {};
+    handsontableColumns.forEach((column: { data: string | number; }, index: string | number) => {
+      composedObject[column.data] = row[index];
+    });
+    return composedObject;
+  });
+
+  return composedData;
+}
+
 
     const processData = (workbook: XLSX.WorkBook) => {
         const firstSheetName = workbook.SheetNames[0];
@@ -296,8 +384,9 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
             });
 
         //setColumns(columns);
-        console.log(jsonData);
-        setData(jsonData as Handsontable.CellValue[][]);
+        const thm = composeData(jsonData);
+        console.log(thm);
+        setData(thm as Handsontable.CellValue[][]);
     };
 
     const handleSave = () => {
@@ -404,7 +493,15 @@ const customCellProperties = (row: number, col: number, prop: any) => {
     };
 
     const addRows = (numberOfRowsToAdd: number): void => {
-        const newData = [...data, ...Array.from({ length: numberOfRowsToAdd }, () => new Array(columns.length).fill(''))];
+        
+        const emptyRow = handsontableColumns.reduce((acc: { [x: string]: string; }, column: { data: string | number; }) => {
+        acc[column.data] = '';
+        return acc;
+      }, {});
+
+        const addedData = Array.from({ length: numberOfRowsToAdd }, () => ({ ...emptyRow }));
+        const newData =[...data, ...addedData];
+        
         setData(newData);
     };
 
@@ -442,7 +539,11 @@ const customCellProperties = (row: number, col: number, prop: any) => {
     reader.onload = (e) => {
       const imgHtml = `<img src="${e.target?.result}" style="max-width: 100px; max-height: 100px;">`;
       const newData = [...data];
-      newData[row][col] = imgHtml;
+
+      //console.log(JSON.stringify(newData));
+      //const item = newData[row];
+      //item[col] =imgHtml;
+      newData[row][handsontableColumns[col].data] = imgHtml;
       setData(newData);
       hotTableRef.current?.hotInstance?.render();
     };
@@ -541,6 +642,8 @@ const handleCellChange = (changes: any) => {
 
       // Apply changes
       changes.forEach(([row, col, oldValue, newValue]: [number, number, any, any]) => {
+        //newData[row][col] = newValue;
+      
         newData[row][col] = newValue;
       });
 
@@ -554,8 +657,9 @@ const handleCellChange = (changes: any) => {
 
   if (selectedCell) {
     const [row, col] = selectedCell;
+    console.log(JSON.stringify(selectedCell));
     const newData = [...data]; // Clone the data array
-    newData[row][col] = newValue; // Update the specific cell
+    newData[row][handsontableColumns[col].data] = newValue; // Update the specific cell
     setData(newData); // Set the new data
   }
 };
@@ -771,6 +875,6 @@ const [highlightedCell, setHighlightedCell] = useState<[number, number] | null>(
             
         </div>
     );
-};
+});
 
 export default ExcelToHandsontable;
