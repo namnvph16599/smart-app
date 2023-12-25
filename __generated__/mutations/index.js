@@ -8,5 +8,6 @@ module.exports.removeQuotation = fs.readFileSync(path.join(__dirname, 'removeQuo
 module.exports.removeTemplate = fs.readFileSync(path.join(__dirname, 'removeTemplate.gql'), 'utf8');
 module.exports.removesheet = fs.readFileSync(path.join(__dirname, 'removesheet.gql'), 'utf8');
 module.exports.updateQuotation = fs.readFileSync(path.join(__dirname, 'updateQuotation.gql'), 'utf8');
+module.exports.updateQuotationStageAndStatus = fs.readFileSync(path.join(__dirname, 'updateQuotationStageAndStatus.gql'), 'utf8');
 module.exports.updateTemplate = fs.readFileSync(path.join(__dirname, 'updateTemplate.gql'), 'utf8');
 module.exports.updatesheet = fs.readFileSync(path.join(__dirname, 'updatesheet.gql'), 'utf8');

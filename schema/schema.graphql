@@ -34,12 +34,14 @@ type Mutation {
   removeTemplate(id: String!): Boolean!
   removesheet(id: String!): Boolean!
   updateQuotation(updateQuoteInput: UpdateQuotationInput!): QuotationType!
+  updateQuotationStageAndStatus(quotationId: String!, stage: String!, status: String!): QuotationType!
   updateTemplate(updateTemplateInput: UpdateTemplateInput!): TemplateType!
   updatesheet(updateSheetInput: UpdatesheetInput!): SheetType!
 }
 
 type Query {
   findAllQuotes: [QuotationType!]!
+  findAllQuotesByStatus(status: String!): [QuotationType!]!
   findAllSheets: [SheetType!]!
   findAllTemplates: [TemplateType!]!
   findOneQuote(id: String!): QuotationType!

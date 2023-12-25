@@ -6,13 +6,15 @@ import 'handsontable/dist/handsontable.full.css';
 import './style.css'
 import HyperFormula from 'hyperformula';
 import { useFindOneTemplateQuery } from '../../graphql/queries/findOneTemplate.generated';
-import { Button, Col, Row } from 'antd';
+import { Button, Col, Row, Space, Upload, UploadFile } from 'antd';
 import { TimelineQuote } from '../quotation/components';
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { Input } from 'antd';
 import _ from 'lodash';
 import { useFindSheetsByQuotationAndStageQuery } from '../../graphql/queries/findSheetsByQuotationAndStage.generated';
 import { useFindOneTemplateByNameQuery } from '../../graphql/queries/findOneTemplateByName.generated';
+import { UploadOutlined } from '@ant-design/icons';
+import { UploadChangeParam } from 'antd/es/upload';
 
 type CellStyle = {
     backgroundColor?: string;
@@ -316,12 +318,14 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
 
     
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            readExcelFile(file);
-        }
-    };
+    
+
+    const handleFileChange = (info: UploadChangeParam<UploadFile<any>>) => {
+  const file = info.file.originFileObj; // Access the uploaded file
+  if (file) {
+    readExcelFile(file);
+  }
+};
 
     const readExcelFile = (file: File) => {
         const reader = new FileReader();
@@ -893,7 +897,16 @@ const [highlightedCell, setHighlightedCell] = useState<[number, number] | null>(
     
         </Col>
         <Col span={8}><div></div></Col>
-      <Col span={4}><input type="file" title='Import' onChange={handleFileChange} accept=".xlsx, .xls" /></Col>
+      <Col span={1}><Space style={{paddingBottom:5}}>
+      <Upload
+        onChange={handleFileChange}
+        showUploadList={false} // To hide the file list
+        accept=".xlsx, .xls"
+        
+      >
+        <Button icon={<UploadOutlined />}>Import</Button>
+      </Upload>
+    </Space></Col>
     </Row>
            
       <Row>

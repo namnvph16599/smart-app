@@ -48,6 +48,7 @@ export type Mutation = {
   removeTemplate: Scalars['Boolean']['output'];
   removesheet: Scalars['Boolean']['output'];
   updateQuotation: QuotationType;
+  updateQuotationStageAndStatus: QuotationType;
   updateTemplate: TemplateType;
   updatesheet: SheetType;
 };
@@ -88,6 +89,13 @@ export type MutationUpdateQuotationArgs = {
 };
 
 
+export type MutationUpdateQuotationStageAndStatusArgs = {
+  quotationId: Scalars['String']['input'];
+  stage: Scalars['String']['input'];
+  status: Scalars['String']['input'];
+};
+
+
 export type MutationUpdateTemplateArgs = {
   updateTemplateInput: UpdateTemplateInput;
 };
@@ -100,6 +108,7 @@ export type MutationUpdatesheetArgs = {
 export type Query = {
   __typename?: 'Query';
   findAllQuotes: Array<QuotationType>;
+  findAllQuotesByStatus: Array<QuotationType>;
   findAllSheets: Array<SheetType>;
   findAllTemplates: Array<TemplateType>;
   findOneQuote: QuotationType;
@@ -107,6 +116,11 @@ export type Query = {
   findOneTemplate: TemplateType;
   findOneTemplateByName: TemplateType;
   findSheetsByQuotationAndStage: Array<SheetType>;
+};
+
+
+export type QueryFindAllQuotesByStatusArgs = {
+  status: Scalars['String']['input'];
 };
 
 

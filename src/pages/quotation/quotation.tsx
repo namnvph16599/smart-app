@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { AppLocation } from "../../components";
 import AppRoutes from "../../routers/app-router";
 import HeaderQuotation from "./components/header-quotation";
@@ -11,6 +11,8 @@ import Edit2Icon from "../../assets/icons/action-table.svg?react";
 import "./style.css";
 import { useNavigate } from "react-router-dom";
 import { useFindAllQuotesQuery } from "../../graphql/queries/findAllQuotes.generated";
+import { useFindAllQuotesByStatusQuery } from "../../graphql/queries/findAllQuotesByStatus.generated";
+import { STORAGE_KEYS } from "../../constants";
 
 enum StatusEnum {
   Lf = "Lf",
@@ -140,9 +142,32 @@ const Quotation = memo(() => {
 
   const { data, loading: getting, error, refetch } = useFindAllQuotesQuery({ fetchPolicy: 'cache-and-network' });
 
-  const quotes = useMemo(() => data?.findAllQuotes ?? [], [data]);
+  const name = localStorage.getItem(STORAGE_KEYS.name);
+  
+  const { data:dataPending } = useFindAllQuotesByStatusQuery({ variables:{
+    status:name ? name : ''
+  } });
+
+
+  const [quotes, setQuotes] = useState([]);
+  //const quotes = useMemo(() => data?.findAllQuotes ?? [], [data]);
 
   const loading = useMemo(() => getting, [getting]);
+
+  useEffect(() => {
+    // Use useMemo to set the quotes state only when data changes
+    setQuotes(data?.findAllQuotes ?? []);
+  }, [data]);
+
+  
+   const fetchQuotes = () => {
+    setQuotes(dataPending?.findAllQuotesByStatus ?? []);
+  };
+
+  const fetchAllQuotes = () => {
+    setQuotes(data?.findAllQuotes ?? []);
+  };
+
 
   return (
     <div className="bg-white px-[32px] custom-table">
@@ -157,7 +182,7 @@ const Quotation = memo(() => {
           },
         ]}
         title="Quotation"
-        rightContent={<HeaderQuotation />}
+        rightContent={<HeaderQuotation fetchQuotes={fetchQuotes} fetchAllQuotes={fetchAllQuotes} />}
       />
       <div className="pt-32px">
         <Table

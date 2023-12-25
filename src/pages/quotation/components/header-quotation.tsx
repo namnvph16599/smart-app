@@ -2,15 +2,29 @@ import { memo, useState } from 'react';
 import { Button, Input, Space } from 'antd';
 import SearchLogo from '../../../assets/icons/search.svg?react';
 import { CreateQuote } from '.';
+import React from 'react';
 
-const HeaderQuotation = memo(() => {
+
+interface HeaderQuotationProps {
+  fetchQuotes: () => void;
+  fetchAllQuotes: () => void;
+}
+
+const HeaderQuotation: React.FC<HeaderQuotationProps> = memo(({ fetchQuotes, fetchAllQuotes }) => {
   const [openModalCreate, setOpenModalCreate] = useState(false);
+
+ 
+
   return (
     <Space>
-      <Button className="bg-greens-light border-none hover:border hover:border-solid hover:border-greens-normal">
+      <Button className="bg-greens-light border-none hover:border hover:border-solid hover:border-greens-normal" onClick={() => {
+          fetchAllQuotes(); 
+        }}>
         All
       </Button>
-      <Button className="text-grey-900 ">Pending</Button>
+      <Button className="text-grey-900 " onClick={() => {
+          fetchQuotes(); 
+        }}>Pending</Button>
       <Input size="middle" className="min-w-[320px] h-40px" suffix={<SearchLogo />} placeholder="Search" />
       <Button
         type="primary"

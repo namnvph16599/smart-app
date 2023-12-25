@@ -1,0 +1,11 @@
+query findAllQuotesByStatus($status: String!){
+    findAllQuotesByStatus(status: $status){
+        category
+        id
+        itemNumber
+        poNumber
+        stage
+        status
+        supplier
+    }
+}

@@ -1,0 +1,11 @@
+mutation updateQuotationStageAndStatus($quotationId: String!, $stage: String!, $status: String!){
+    updateQuotationStageAndStatus(quotationId: $quotationId, stage: $stage, status: $status){
+        category
+        id
+        itemNumber
+        poNumber
+        stage
+        status
+        supplier
+    }
+}
