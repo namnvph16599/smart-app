@@ -133,7 +133,7 @@ const ExcelToHandsontable = forwardRef<ExcelToHandsontableRef, ExcelToHandsontab
 
     const { data:sheetTemplate, loading: gettingSheet } = useFindOneSheetQuery({
         variables: {
-          id: "65804c236a94f3035dc8fe82",
+          id: "658926831623f57444871b84",
         },
     });
 
@@ -241,8 +241,9 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
 
           if(sheet)
           {
+             console.log(sheet);
             setData(sheet.dynamicFields as Handsontable.CellValue[][]);
-            console.log(sheet);
+           
             return;
           }
           setData(data as Handsontable.CellValue[][]);
@@ -317,12 +318,14 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
         return style;
     };
 
-
+ const hasNonEmptyValue = (row: (string | number)[]): boolean => {
+  return row.some(value => value !== '');
+};
 
     const transformData = (handsontableData: Handsontable.CellValue[][]) => {
     const columnNames = handsontableColumns.map((column: { data: any; }) => column.data);
 
-    return handsontableData.map(row => {
+    const initData =  handsontableData.map(row => {
       const rowData: DataRow = {};
       row.forEach((cell, index) => {
         const columnName = columnNames[index];
@@ -330,7 +333,14 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
       });
       return rowData;
     });
-  };
+
+   
+
+// Filter out records with at least one non-empty value
+    const filteredData = initData.filter(item => hasNonEmptyValue(Object.values(item)));
+    return filteredData;
+
+      };
 
   useImperativeHandle(ref, () => ({
     getData: () => {
