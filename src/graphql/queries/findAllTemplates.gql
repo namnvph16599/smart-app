@@ -1,7 +1,7 @@
-query findAllTemplates {
-  findAllTemplates {
-    dynamicFields
-    id
-    name
-  }
+query findAllTemplates{
+    findAllTemplates{
+        dynamicFields
+        id
+        name
+    }
 }

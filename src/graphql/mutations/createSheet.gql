@@ -3,6 +3,10 @@ mutation createSheet($createSheetInput: CreatesheetInput!){
         dynamicFields
         id
         name
-        quotationId
+        quoteId
+        stage
+        status
+        updateBy
+        version
     }
 }

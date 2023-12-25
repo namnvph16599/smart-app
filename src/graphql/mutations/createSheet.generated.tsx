@@ -12,7 +12,7 @@ export type CreateSheetMutationResponse = (
   { __typename?: 'Mutation' }
   & { createSheet: (
     { __typename?: 'SheetType' }
-    & Pick<Types.SheetType, 'dynamicFields' | 'id' | 'name' | 'quotationId'>
+    & Pick<Types.SheetType, 'dynamicFields' | 'id' | 'name' | 'quoteId' | 'stage' | 'status' | 'updateBy' | 'version'>
   ) }
 );
 
@@ -23,7 +23,11 @@ export const CreateSheetDocument = gql`
     dynamicFields
     id
     name
-    quotationId
+    quoteId
+    stage
+    status
+    updateBy
+    version
   }
 }
     `;

@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { SetStateAction, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppLocation } from '../../components';
 import AppRoutes from '../../routers/app-router';
 import { Button, Col, Row, Space, Spin, Steps } from 'antd';
@@ -18,6 +18,7 @@ import { useFindOneSheetQuery } from '../../graphql/queries/findOneSheet.generat
 import { useCreateSheetMutation } from '../../graphql/mutations/createSheet.generated';
 import { showNotification } from '../../utils';
 import { STORAGE_KEYS } from '../../constants';
+import { useUpdatesheetMutation } from '../../graphql/mutations/updatesheet.generated';
 
 //Or, to reduce the size of your JavaScript bundle, import only the modules that you need.
 registerAllModules();
@@ -31,7 +32,6 @@ const StepLabel = memo(({ name }: { name: string }) => {
 });
 
 const QuotaionDetail = memo(() => {
-  const { id } = useParams();
 
   const excelToHandsontableRef = useRef<ExcelToHandsontableRef>(null);
 
@@ -44,13 +44,9 @@ const QuotaionDetail = memo(() => {
   const [step, setStep] = useState(0);
 
   //  change id to step when onclick
-  const { data: sheetData, loading: getting } = useFindOneSheetQuery({
-    variables: { id: step },
-    skip: !id,
-  });
+ 
+  const { id:quoteId } = useParams();
 
-  const sheet = useMemo(() => sheetData?.findOneSheet, [sheetData]);
-  console.log('sheet', sheet);
 
   // TODO: handle
   const [createSheetAsync, { loading: creating }] = useCreateSheetMutation({
@@ -62,36 +58,64 @@ const QuotaionDetail = memo(() => {
     },
   });
 
+  const [updateSheetAsync, { loading: updating }] = useUpdatesheetMutation({
+    onCompleted() {
+      // handle create sucess
+    },
+    onError(error) {
+      showNotification('error', 'Create failed', error?.message);
+    },
+  });
+
+
+  
+
 
   const handleCreateSheet = useCallback(() => {
+    const stage = step.toString();
+    console.log(" stage la :" + step);
     const handsontableData = excelToHandsontableRef.current?.getData();
     //console.log(handsontableData);
 
-    const { id } = useParams();
-
     if (handsontableData) {
+
+        const { id:sheetId, data } = handsontableData;
+
+        console.log(JSON.stringify(step));
 
         const name = localStorage.getItem(STORAGE_KEYS.name);
         
-        console.log(JSON.stringify(handsontableData));
+        //console.log(JSON.stringify(data));
         const input = {
+        id:sheetId,
         name: "Sheet",
-        stage: step,
-        quoteId: id,
+        stage: stage,
+        quoteId: quoteId,
         updateBy: name,
-
-        dynamicFields: handsontableData,
+        dynamicFields: data,
       };
 
+      if(sheetId)
+      {
+        updateSheetAsync({
+          variables: {
+            updateSheetInput: input,
+          },
+        });
+      }
+      else
+      {
         createSheetAsync({
           variables: {
             createSheetInput: input,
           },
         });
+      }
+        
     }
-}, [createSheetAsync]);
+}, [createSheetAsync, step]);
 
-  const loading = useMemo(() => creating || getting, [creating, getting]);
+  const loading = useMemo(() => creating , [creating]);
 
   useEffect(() => {
     // Fetch data from the API
@@ -123,6 +147,11 @@ const QuotaionDetail = memo(() => {
 
   const userNames = users.map((user) => user.name);
 
+  useEffect(() => {
+    console.log(step);
+    excelToHandsontableRef.current?.resetData();
+  }, [step]);
+
   const columns: Handsontable.ColumnSettings[] = [
     {
       data: 'title',
@@ -140,6 +169,14 @@ const QuotaionDetail = memo(() => {
     },
   ];
 
+  const handleChangeStep = (current: any) => {
+  // The state update is asynchronous
+  setStep(current);
+
+  // This log may not immediately reflect the updated state
+  console.log('Updated Step:', current);
+};
+
   return (
     <Spin spinning={loading}>
       <div className="bg-white px-[32px] custom-table">
@@ -156,7 +193,10 @@ const QuotaionDetail = memo(() => {
           title="Quotation Detail"
           rightContent={
             <Space>
-              <Button type="primary" className="bg-greens-light text-greens-normal" onClick={() => handleCreateSheet()}>
+              <Button type="primary" className="bg-greens-light text-greens-normal" onClick={(e) => {
+                  e.preventDefault();
+                  handleCreateSheet();
+                }}>
                 <Space>
                   <AddUserIcon />
                   <span>Assign</span>
@@ -179,9 +219,7 @@ const QuotaionDetail = memo(() => {
           <Steps
             current={step}
             labelPlacement="vertical"
-            onChange={(current) => {
-              setStep(current);
-            }}
+            onChange={(current) => handleChangeStep(current)}
             items={[
               {
                 title: <StepLabel name="Working recap" />,
@@ -220,7 +258,12 @@ const QuotaionDetail = memo(() => {
           </Col>
           <Col span={openTimeline ? 20 : 24}>
             <div style={{ width: '100%' }}>
-              <ExcelToHandsontable openTimeline={openTimeline} ref={excelToHandsontableRef}/>
+             {quoteId  ? (
+                <ExcelToHandsontable openTimeline={openTimeline} quoteId={quoteId} stage={step} ref={excelToHandsontableRef}/>
+              ) : (
+                // You can render a fallback or loading message here
+                <p>Loading...</p>
+              )}
               {/* <HotTable
               data={data}
               columns={columns}

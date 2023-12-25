@@ -7,3 +7,5 @@ module.exports.findAllTemplates = fs.readFileSync(path.join(__dirname, 'findAllT
 module.exports.findOneQuote = fs.readFileSync(path.join(__dirname, 'findOneQuote.gql'), 'utf8');
 module.exports.findOneSheet = fs.readFileSync(path.join(__dirname, 'findOneSheet.gql'), 'utf8');
 module.exports.findOneTemplate = fs.readFileSync(path.join(__dirname, 'findOneTemplate.gql'), 'utf8');
+module.exports.findOneTemplateByName = fs.readFileSync(path.join(__dirname, 'findOneTemplateByName.gql'), 'utf8');
+module.exports.findSheetsByQuotationAndStage = fs.readFileSync(path.join(__dirname, 'findSheetsByQuotationAndStage.gql'), 'utf8');

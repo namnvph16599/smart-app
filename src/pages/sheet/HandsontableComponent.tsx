@@ -11,7 +11,8 @@ import { TimelineQuote } from '../quotation/components';
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { Input } from 'antd';
 import _ from 'lodash';
-import { useFindOneSheetQuery } from '../../graphql/queries/findOneSheet.generated';
+import { useFindSheetsByQuotationAndStageQuery } from '../../graphql/queries/findSheetsByQuotationAndStage.generated';
+import { useFindOneTemplateByNameQuery } from '../../graphql/queries/findOneTemplateByName.generated';
 
 type CellStyle = {
     backgroundColor?: string;
@@ -20,6 +21,8 @@ type CellStyle = {
 
 type ExcelToHandsontableProps = {
     openTimeline: boolean;
+    quoteId:string;
+    stage:string;
 };
 
 interface ChangeEvent {
@@ -65,12 +68,13 @@ type Styles = {
 
 export interface ExcelToHandsontableRef {
   getData: () => any;
+  resetData: () => any;
 }
 
 const ExcelToHandsontable = forwardRef<ExcelToHandsontableRef, ExcelToHandsontableProps>((props, ref) => {
     const [data, setData] = useState<Handsontable.CellValue[][]>([]);
     const [columns, setColumns] = useState<Column[]>([]);
-    const { openTimeline } = props;
+    const { openTimeline, quoteId, stage } = props;
 
     const [styles, setStyles] = useState<any>();
     const hotTableRef = useRef<HotTable>(null);
@@ -131,23 +135,102 @@ const ExcelToHandsontable = forwardRef<ExcelToHandsontableRef, ExcelToHandsontab
         },
     ];*/
 
-    const { data:sheetTemplate, loading: gettingSheet } = useFindOneSheetQuery({
+    const stageMappings: Record<number, string> = {
+      0:'working_recap',
+      1: 'initial_volumes',
+      2: 'admin_check',
+      3: 'pre_class',
+      4: 'phasing',
+      5: 'pack_copy',
+      6: 'template',
+    };
+
+    function mapStageToName(stage: any): string {
+      return stageMappings[stage] || 'unknown_stage';
+    }
+
+    const { data: dataTemplate, loading: getting, refetch: refetchTemplate } = useFindOneTemplateByNameQuery({
         variables: {
-          id: "658926831623f57444871b84",
+          name: mapStageToName(stage),
+        }
+    });
+
+      /*const { data: dataTemplate, loading: getting, refetch: refetchTemplate } = useFindOneTemplateQuery({
+        variables: {
+          id: "65804c236a94f3035dc8fe82",
+        }
+    });*/
+
+    useEffect(() => {
+  const fetchData = async () => {
+    try {
+      await refetchTemplate({
+        name: mapStageToName(stage),
+        // Add other variables as needed
+      });
+    } catch (error) {
+      console.error("Error refetching data:", error);
+    }
+  };
+
+  fetchData();
+}, [stage, quoteId, refetchTemplate, dataTemplate]);
+
+    const template = useMemo(() => dataTemplate?.findOneTemplateByName, [dataTemplate]);
+
+    useEffect(() => {
+        const handsontableColumns1 = template?.dynamicFields?.map((field: Field, index: number) => {
+          const columnLetter = columnIndexToLetter(index); 
+          const column:any = { readOnly: false, data: toCamelCase(field.fieldName) , title: `${field.fieldName}  (${columnLetter})`, renderer: htmlRenderer};
+        // data: field.fieldName,
+          switch (field.type) {
+            case "text":
+              // No specific configuration needed for text
+            
+              column.type = "text";
+              break;
+            case "number":
+              column.type = "numeric";
+              break;
+            case "array":
+            case "dropdownlist":
+              column.type = "dropdown";
+              // You would need to fetch the dropdown data from the URL provided
+              // For simplicity, let's assume it's already fetched and stored in a variable
+              column.source = userNames; // dropdownData should be an array of values
+              break;
+            default:
+              // Handle any other types or default case
+          }
+          column.readOnly= false;
+          return column;
+        });
+
+        if (Array.isArray(handsontableColumns1)) {
+        setColumns(handsontableColumns1);
+        }
+
+     }, [dataTemplate, columns]);
+
+
+    const { data:sheetTemplate, loading: gettingSheet, refetch  } = useFindSheetsByQuotationAndStageQuery({
+        variables: {
+          quoteId:quoteId,
+          stage:stage.toString()
         },
     });
 
-    const sheet = useMemo(() => sheetTemplate?.findOneSheet, [sheetTemplate]);
-
-
-    const { data:dataTemplate, loading: getting } = useFindOneTemplateQuery({
-        variables: {
-        id: "65804c236a94f3035dc8fe82",
-        },
-        skip: !"65804c236a94f3035dc8fe82",
+    useEffect(() => {
+    refetch({
+      quoteId: quoteId,
+      stage: stage.toString(),
     });
+  }, [stage, quoteId, refetch]);
 
-    const template = useMemo(() => dataTemplate?.findOneTemplate, [dataTemplate]);
+    const sheet = useMemo(() => sheetTemplate?.findSheetsByQuotationAndStage, [sheetTemplate]);
+
+
+  
 
 
 function columnIndexToLetter(index: number): string {
@@ -182,15 +265,17 @@ const htmlRenderer: Handsontable.renderers.BaseRenderer = (instance: Handsontabl
         .join('');
 }
 
+
 const handsontableColumns = template?.dynamicFields?.map((field: Field, index: number) => {
    const columnLetter = columnIndexToLetter(index); 
-  const column:any = { data: toCamelCase(field.fieldName) , title: `${field.fieldName}  (${columnLetter})`, renderer: htmlRenderer};
+  const column:any = {  readOnly: false, data: toCamelCase(field.fieldName) , title: `${field.fieldName}  (${columnLetter})`, renderer: htmlRenderer};
  // data: field.fieldName,
   switch (field.type) {
     case "text":
       // No specific configuration needed for text
      
       column.type = "text";
+      
       break;
     case "number":
       column.type = "numeric";
@@ -198,61 +283,38 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
     case "array":
     case "dropdownlist":
       column.type = "dropdown";
-      // You would need to fetch the dropdown data from the URL provided
-      // For simplicity, let's assume it's already fetched and stored in a variable
       column.source = userNames; // dropdownData should be an array of values
       break;
     default:
       // Handle any other types or default case
   }
-
+  column.readOnly= false;
   return column;
 });
 
-
+  
+     
 
     useEffect(() => {
+  if ((!data || data?.length === 0) && template) {
+    if (sheet?.length > 0) {
+      const newData = _.cloneDeep(sheet[0]?.dynamicFields);
+      setData(newData as Handsontable.CellValue[][]);
+    } else {
+      const numberOfRows = 100;
 
-         if (data?.length == 0 && template && handsontableColumns) {
-          const fieldNames = template.dynamicFields?.map((field: { fieldName: any; }) => field.fieldName) || [];
-          const numberOfColumns = fieldNames.length;
+      const emptyRow = columns.reduce((acc: { [x: string]: string; }, column: { data: string | number; }) => {
+        acc[column.data] = '';
+        return acc;
+      }, {});
+        const data = Array.from({ length: numberOfRows }, () => ({ ...emptyRow }));
+        setData(data as Handsontable.CellValue[][]);
+              
+    }
+  }
+}, [data, template, stage, sheet, columns]);
 
-          setColumns(handsontableColumns);
-         
-          const numberOfRows = 100;
-
-          const emptyRow = handsontableColumns.reduce((acc: { [x: string]: string; }, column: { data: string | number; }) => {
-            acc[column.data] = '';
-            return acc;
-          }, {});
-
-          /*
-          const emptyRow = {
-            itemNumber: '',
-            ponumber: '',
-            total: '',
-            cost: '',
-            customer: '',
-            country23123123123: '',
-          };*/
-
-          const data = Array.from({ length: numberOfRows }, () => ({ ...emptyRow }));
-
-
-          if(sheet)
-          {
-             console.log(sheet);
-            setData(sheet.dynamicFields as Handsontable.CellValue[][]);
-           
-            return;
-          }
-          setData(data as Handsontable.CellValue[][]);
-          
-        }
-
-  }, [!data, template,  handsontableColumns, sheet]);
-
- 
+    
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -318,27 +380,27 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
         return style;
     };
 
- const hasNonEmptyValue = (row: (string | number)[]): boolean => {
-  return row.some(value => value !== '');
+ const hasNonEmptyValue = (row: (string | number | null)[]): boolean => {
+  return row.some(value => value !== '' && value !== null);
 };
 
     const transformData = (handsontableData: Handsontable.CellValue[][]) => {
-    const columnNames = handsontableColumns.map((column: { data: any; }) => column.data);
+      const columnNames = columns.map((column: { data: any; }) => column.data);
 
-    const initData =  handsontableData.map(row => {
-      const rowData: DataRow = {};
-      row.forEach((cell, index) => {
-        const columnName = columnNames[index];
-        rowData[columnName] = cell;
+      const initData =  handsontableData.map(row => {
+        const rowData: DataRow = {};
+        row.forEach((cell, index) => {
+          const columnName = columnNames[index];
+          rowData[columnName] = cell;
+        });
+        return rowData;
       });
-      return rowData;
-    });
 
-   
+    
 
-// Filter out records with at least one non-empty value
-    const filteredData = initData.filter(item => hasNonEmptyValue(Object.values(item)));
-    return filteredData;
+  // Filter out records with at least one non-empty value
+      const filteredData = initData.filter(item => hasNonEmptyValue(Object.values(item)));
+      return filteredData;
 
       };
 
@@ -346,8 +408,17 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
     getData: () => {
 
       const rawHandsontableData = hotTableRef.current?.hotInstance?.getData() || [];
-      return transformData(rawHandsontableData);
-    }
+      return {
+        id:sheet[0]?.id,
+        data: transformData(rawHandsontableData),
+      };
+    },
+    resetData: () => {
+      
+      setData([]);
+      setColumns([]);
+      
+    },
   }));
 
     function composeData(jsonData: any): Array<{ [key: string]: string | number }> {
@@ -615,45 +686,26 @@ const customCellProperties = (row: number, col: number, prop: any) => {
      const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null);
 
     
-
-    const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && selectedCell) {
-        updateCellValue();
-    }
-};
-
 /*
 const handleFormulaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCellValue(event.target.value);
     // Don't update the Handsontable data here; let the debounced function or enter key handle it
 };*/
 
-const handleKeyDown1 = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && selectedCell) {
-        updateCellValue();
-    }
-};
 
-
-
-const updateCellValue = () => {
-    if (selectedCell) {
-        const [row, column] = selectedCell;
-        const newData = [...data];
-        newData[row][column] = cellValue;
-        setData(newData);
-    }
-};
 
 const handleCellChange = (changes: any) => {
+  
     if (changes) {
       // Deep clone the data array to avoid direct state mutation
       const newData = _.cloneDeep(data);
+      console.log(" thiet tinh33");
 
       // Apply changes
       changes.forEach(([row, col, oldValue, newValue]: [number, number, any, any]) => {
         //newData[row][col] = newValue;
-      
+        console.log(row);
+        console.log(col);
         newData[row][col] = newValue;
       });
 
@@ -668,7 +720,7 @@ const handleCellChange = (changes: any) => {
   if (selectedCell) {
     const [row, col] = selectedCell;
     console.log(JSON.stringify(selectedCell));
-    const newData = [...data]; // Clone the data array
+    const newData = _.cloneDeep(data);
     newData[row][handsontableColumns[col].data] = newValue; // Update the specific cell
     setData(newData); // Set the new data
   }
@@ -830,7 +882,7 @@ const [highlightedCell, setHighlightedCell] = useState<[number, number] | null>(
       <Col span={10} style={{ paddingLeft: '6px' }}>
         <Input className='pb-5px' 
                             width={200}
-                            value={selectedCell ? data[selectedCell[0]][selectedCell[1]] : ''}
+                            value={selectedCell && data ? (data[selectedCell[0]] && data[selectedCell[0]][selectedCell[1]]) || '' : ''}
                             onChange={handleFormulaChange}
                             onKeyDown={handleKeyDown}
 

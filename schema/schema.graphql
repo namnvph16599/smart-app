@@ -14,8 +14,11 @@ input CreateTemplateInput {
 
 input CreatesheetInput {
   dynamicFields: [JSONObject!]!
-  name: String!
-  quotationId: String
+  name: String
+  quoteId: String
+  stage: String
+  updateBy: String
+  version: String
 }
 
 """
@@ -42,6 +45,8 @@ type Query {
   findOneQuote(id: String!): QuotationType!
   findOneSheet(id: String!): SheetType!
   findOneTemplate(id: String!): TemplateType!
+  findOneTemplateByName(name: String!): TemplateType!
+  findSheetsByQuotationAndStage(quoteId: String!, stage: String!): [SheetType!]!
 }
 
 type QuotationType {
@@ -57,8 +62,12 @@ type QuotationType {
 type SheetType {
   dynamicFields: [JSONObject!]!
   id: ID!
-  name: String!
-  quotationId: String
+  name: String
+  quoteId: String
+  stage: String
+  status: String
+  updateBy: String
+  version: String
 }
 
 type TemplateType {
@@ -87,6 +96,8 @@ input UpdatesheetInput {
   dynamicFields: [JSONObject!]
   id: ID!
   name: String
-  quotationId: String
+  quoteId: String
+  stage: String
   updateBy: String
+  version: String
 }

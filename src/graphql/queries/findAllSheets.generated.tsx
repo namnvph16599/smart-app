@@ -10,7 +10,7 @@ export type FindAllSheetsQueryResponse = (
   { __typename?: 'Query' }
   & { findAllSheets: Array<(
     { __typename?: 'SheetType' }
-    & Pick<Types.SheetType, 'dynamicFields' | 'id' | 'name' | 'quotationId'>
+    & Pick<Types.SheetType, 'dynamicFields' | 'id' | 'name' | 'quoteId' | 'stage' | 'status' | 'updateBy' | 'version'>
   )> }
 );
 
@@ -21,7 +21,11 @@ export const FindAllSheetsDocument = gql`
     dynamicFields
     id
     name
-    quotationId
+    quoteId
+    stage
+    status
+    updateBy
+    version
   }
 }
     `;

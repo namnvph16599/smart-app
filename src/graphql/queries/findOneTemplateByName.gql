@@ -1,0 +1,7 @@
+query findOneTemplateByName($name: String!){
+    findOneTemplateByName(name: $name){
+        dynamicFields
+        id
+        name
+    }
+}

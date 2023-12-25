@@ -3,6 +3,10 @@ mutation updatesheet($updateSheetInput: UpdatesheetInput!){
         dynamicFields
         id
         name
-        quotationId
+        quoteId
+        stage
+        status
+        updateBy
+        version
     }
 }

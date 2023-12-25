@@ -1,0 +1,12 @@
+query findSheetsByQuotationAndStage($quoteId: String!, $stage: String!){
+    findSheetsByQuotationAndStage(quoteId: $quoteId, stage: $stage){
+        dynamicFields
+        id
+        name
+        quoteId
+        stage
+        status
+        updateBy
+        version
+    }
+}

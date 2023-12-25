@@ -3,6 +3,10 @@ query findOneSheet($id: String!){
         dynamicFields
         id
         name
-        quotationId
+        quoteId
+        stage
+        status
+        updateBy
+        version
     }
 }
