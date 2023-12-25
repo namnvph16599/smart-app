@@ -17,6 +17,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useFindOneSheetQuery } from '../../graphql/queries/findOneSheet.generated';
 import { useCreateSheetMutation } from '../../graphql/mutations/createSheet.generated';
 import { showNotification } from '../../utils';
+import { STORAGE_KEYS } from '../../constants';
 
 //Or, to reduce the size of your JavaScript bundle, import only the modules that you need.
 registerAllModules();
@@ -40,7 +41,7 @@ const QuotaionDetail = memo(() => {
   const [data, setData] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
 
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
 
   //  change id to step when onclick
   const { data: sheetData, loading: getting } = useFindOneSheetQuery({
@@ -61,16 +62,24 @@ const QuotaionDetail = memo(() => {
     },
   });
 
+
   const handleCreateSheet = useCallback(() => {
     const handsontableData = excelToHandsontableRef.current?.getData();
     //console.log(handsontableData);
 
+    const { id } = useParams();
+
     if (handsontableData) {
-     
+
+        const name = localStorage.getItem(STORAGE_KEYS.name);
+        
         console.log(JSON.stringify(handsontableData));
         const input = {
-        name: "googo",
-        quotationId:"6579a54176def105b6d00dad",
+        name: "Sheet",
+        stage: step,
+        quoteId: id,
+        updateBy: name,
+
         dynamicFields: handsontableData,
       };
 
@@ -168,7 +177,7 @@ const QuotaionDetail = memo(() => {
         />
         <div className="py-32px">
           <Steps
-            current={2}
+            current={step}
             labelPlacement="vertical"
             onChange={(current) => {
               setStep(current);
