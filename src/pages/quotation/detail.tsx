@@ -451,18 +451,22 @@ const QuotaionDetail = memo(() => {
             ]}
           />
         </div>
-        <Row gutter={30}>
-          <Col span={24}>
-            <div className="flex flex-row justify-end">
-              <Button
+        <Row gutter={24}>
+          
+          <Col span={openTimeline ? 21 : 24}>
+            <div>
+             <Button
+                style={{
+                    position: 'absolute', 
+                    zIndex: 1000, 
+                    right:20
+                }}
                 type="primary"
                 className="bg-greens-light text-greens-normal"
                 onClick={() => setOpenTimeLine(!openTimeline)}
                 icon={!openTimeline ? <EyeOutlined /> : <EyeInvisibleOutlined />}
               />
             </div>
-          </Col>
-          <Col span={openTimeline ? 20 : 24}>
             <div style={{ width: '100%' }}>
              {quoteId  ? (
                 <ExcelToHandsontable openTimeline={openTimeline} quoteId={quoteId} stage={step} ref={excelToHandsontableRef}/>
@@ -490,7 +494,7 @@ const QuotaionDetail = memo(() => {
             /> */}
             </div>
           </Col>
-          <Col span={openTimeline ? 4 : 0}>
+          <Col span={openTimeline ? 3 : 0}>
             <TimelineQuote
               approveds={[
                 {

@@ -509,7 +509,7 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
     useEffect(() => {
         function handleResize() {
             // Example: Set width to 80% of window width, but not more than 1200px
-            const dynamicWidth = Math.min(openTimeline ? window.innerWidth * 0.8 : window.innerWidth * 0.95);
+            const dynamicWidth = Math.min(openTimeline ? window.innerWidth * 0.95 : window.innerWidth * 0.95);
             // Example: Set height to a fixed value
             const dynamicHeight = 500;
 
@@ -880,10 +880,10 @@ const [highlightedCell, setHighlightedCell] = useState<[number, number] | null>(
         <Col span={1}>
         <Input value={cellPosition || ''} className='pb-5px pr-6px'
                             
-                            style={{ paddingRight: '10px' }}/>  
+                            style={{ width: '50px' }}/>  
                            
         </Col>
-      <Col span={10} style={{ paddingLeft: '6px' }}>
+      <Col span={10} style={{ paddingLeft: '1px' }}>
         <Input className='pb-5px' 
                             width={200}
                             value={selectedCell && data ? (data[selectedCell[0]] && data[selectedCell[0]][selectedCell[1]]) || '' : ''}
@@ -896,12 +896,13 @@ const [highlightedCell, setHighlightedCell] = useState<[number, number] | null>(
                             <div style={{ paddingTop: '3px' }}/>
     
         </Col>
-        <Col span={8}><div></div></Col>
-      <Col span={1}><Space style={{paddingBottom:5}}>
+        <Col span={11}><div></div></Col>
+      <Col span={1} style={{ display: 'flex', justifyContent: 'flex-end' }}><Space style={{paddingBottom:5}}>
       <Upload
         onChange={handleFileChange}
         showUploadList={false} // To hide the file list
         accept=".xlsx, .xls"
+       
         
       >
         <Button icon={<UploadOutlined />}>Import</Button>
