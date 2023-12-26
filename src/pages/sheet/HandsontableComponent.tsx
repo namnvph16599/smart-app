@@ -703,13 +703,10 @@ const handleCellChange = (changes: any) => {
     if (changes) {
       // Deep clone the data array to avoid direct state mutation
       const newData = _.cloneDeep(data);
-      console.log(" thiet tinh33");
-
+    
       // Apply changes
       changes.forEach(([row, col, oldValue, newValue]: [number, number, any, any]) => {
-        //newData[row][col] = newValue;
-        console.log(row);
-        console.log(col);
+       
         newData[row][col] = newValue;
       });
 
@@ -723,9 +720,8 @@ const handleCellChange = (changes: any) => {
 
   if (selectedCell) {
     const [row, col] = selectedCell;
-    console.log(JSON.stringify(selectedCell));
     const newData = _.cloneDeep(data);
-    newData[row][handsontableColumns[col].data] = newValue; // Update the specific cell
+    newData[row][col] = newValue; // Update the specific cell
     setData(newData); // Set the new data
   }
 };
@@ -739,11 +735,12 @@ const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const formulaValue = inputElement.value;
 
     // Process the formula
-    const result = processFormula(formulaValue);
+    //const result = processFormula(formulaValue);
 
     // Update the Handsontable data
     const newData = [...data];
-    newData[row][col] = result;
+    newData[row][handsontableColumns[col].data] = formulaValue;
+
     setData(newData);
 
     // Move the focus out of the current cell
