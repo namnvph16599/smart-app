@@ -167,7 +167,7 @@ const QuotaionDetail = memo(() => {
       type: "success",
       content: "Update Successfull!",
     });
-
+    navigate(-1);
       
     
 }, [createSheetAsync, step]);
