@@ -15,9 +15,9 @@ import { useFindAllQuotesByStatusQuery } from "../../graphql/queries/findAllQuot
 import { STORAGE_KEYS } from "../../constants";
 
 enum StatusEnum {
-  Lf = "Lf",
-  Buyer = "Buyer",
-  Supplier = "Supplier",
+  Lf = "lfmr",
+  Buyer = "customer",
+  Supplier = "vendor",
 }
 
 /*
