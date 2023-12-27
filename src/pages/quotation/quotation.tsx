@@ -46,14 +46,14 @@ const Quotation = memo(() => {
         title: "PO No.",
         dataIndex: "poNumber",
         key: "poNumber",
-        width: "5%",
+        width: "6%",
         align: "center",
       },
       {
         title: "Item No.",
         dataIndex: "itemNumber",
         key: "itemNumber",
-        width: "5%",
+        width: "6%",
         align: "center",
       },
       {
