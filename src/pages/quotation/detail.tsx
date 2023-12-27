@@ -322,6 +322,11 @@ const QuotaionDetail = memo(() => {
             <div className="flex flex-row justify-end">
               <Button
                 type="primary"
+                style={{
+                    position: 'absolute', 
+                    zIndex: 1000, 
+                    right:20
+                }}
                 className="bg-greens-light text-greens-normal"
                 onClick={() => setOpenTimeLine(!openTimeline)}
                 icon={!openTimeline ? <EyeOutlined /> : <EyeInvisibleOutlined />}
@@ -453,16 +458,16 @@ const QuotaionDetail = memo(() => {
         </div>
         <Row gutter={24}>
           
-          <Col span={openTimeline ? 21 : 24}>
+          <Col span={openTimeline ? 21 : 24} >
             <div>
              <Button
                 style={{
                     position: 'absolute', 
-                    zIndex: 1000, 
+                    zIndex: 3000, 
                     right:20
                 }}
                 type="primary"
-                className="bg-greens-light text-greens-normal"
+                className="bg-greens-light text-greens-normal absolute z-[3000] right-24"
                 onClick={() => setOpenTimeLine(!openTimeline)}
                 icon={!openTimeline ? <EyeOutlined /> : <EyeInvisibleOutlined />}
               />
