@@ -79,8 +79,6 @@ export const AuthProvider = ({ children }: Props) => {
         const sub = userInfo?.sub;
         if (sub) {
           localStorage.setItem(STORAGE_KEYS.sub, sub);
-          localStorage.setItem(STORAGE_KEYS.name, userInfo?.name);
-          localStorage.setItem(STORAGE_KEYS.mail, userInfo?.email);
           setIsLoggedIn(true);
           setUser(userInfo);
         }
