@@ -120,14 +120,13 @@ const Quotation = memo(() => {
         key: "id",
         width: "8%",
         align: "center",
-        render: (id,stage) => {
+        render: (id) => {
           return (
             <Space>
               <span
                 className="hover:cursor-pointer"
                 onClick={() => {
-                  const additionalData = { initState: stage};
-                  navigate(AppRoutes.quotation.detail.id(id),  { state: { additionalData } });
+                  navigate(AppRoutes.quotation.detail.id(id));
                 }}
               >
                 <EditIcon />
