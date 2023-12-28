@@ -5,10 +5,7 @@ import * as XLSX from 'xlsx';
 import 'handsontable/dist/handsontable.full.css';
 import './style.css'
 import HyperFormula from 'hyperformula';
-import { useFindOneTemplateQuery } from '../../graphql/queries/findOneTemplate.generated';
 import { Button, Col, Row, Space, Upload, UploadFile } from 'antd';
-import { TimelineQuote } from '../quotation/components';
-import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { Input } from 'antd';
 import _ from 'lodash';
 import { useFindSheetsByQuotationAndStageQuery } from '../../graphql/queries/findSheetsByQuotationAndStage.generated';
@@ -27,12 +24,6 @@ type ExcelToHandsontableProps = {
     stage:string;
 };
 
-interface ChangeEvent {
-        changes: Handsontable.CellChange[] | null;
-        source: Handsontable.ChangeSource;
-    }
-
-    
 type Column = {
   data: string;
   title: string;
@@ -50,20 +41,6 @@ type DataRow = {
   [key: string]: Handsontable.CellValue;
 };
 
-interface CellCoords {
-  row: number;
-  col: number;
-}
-
-interface ColumnSettings {
-  data: string;
-  type?: string;
-  title: string;
-  source?: string[];
-}
-
-
-
 type Styles = {
     [cellRef: string]: CellStyle;
 };
@@ -78,22 +55,12 @@ const ExcelToHandsontable = forwardRef<ExcelToHandsontableRef, ExcelToHandsontab
     const [columns, setColumns] = useState<Column[]>([]);
     const { openTimeline, quoteId, stage } = props;
 
-    const [styles, setStyles] = useState<any>();
     const hotTableRef = useRef<HotTable>(null);
 
     const [users, setUsers] = useState<any[]>([]);
 
     useEffect(() => {
-        // Fetch data from the API
-        /*fetch("https://jsonplaceholder.typicode.com/posts")
-        .then((response) => response.json())
-        .then((apiData) => {
-            //setData(apiData);
-        })
-        .catch((error) => {
-            console.error("Error fetching data:", error);
-        });*/
-
+      
         // Fetch user data from the API to populate the dropdown list
         fetch("https://jsonplaceholder.typicode.com/users")
         .then((response) => response.json())
@@ -104,38 +71,12 @@ const ExcelToHandsontable = forwardRef<ExcelToHandsontableRef, ExcelToHandsontab
             console.error("Error fetching users:", error);
         });
 
-        
-        
 
   }, []);
 
 
-  
-
-
-  
-   
-
 
   const userNames = users && users.map((user) => user.name);
-
-
-    /*const columns: Handsontable.ColumnSettings[] = [
-        {
-        data: "title",
-        title: "Title",
-        },
-        {
-        data: "userId",
-        title: "User",
-        type: "customDropdown", // Use the registered custom cell type
-        source: userNames, // Populate the dropdown source with user names
-        },
-        {
-        data: "body",
-        title: "Body",
-        },
-    ];*/
 
     const stageMappings: Record<number, string> = {
       0:'working_recap',
@@ -151,17 +92,11 @@ const ExcelToHandsontable = forwardRef<ExcelToHandsontableRef, ExcelToHandsontab
       return stageMappings[stage] || 'unknown_stage';
     }
 
-    const { data: dataTemplate, loading: getting, refetch: refetchTemplate } = useFindOneTemplateByNameQuery({
+    const { data: dataTemplate, refetch: refetchTemplate } = useFindOneTemplateByNameQuery({
         variables: {
           name: mapStageToName(stage),
         }
     });
-
-      /*const { data: dataTemplate, loading: getting, refetch: refetchTemplate } = useFindOneTemplateQuery({
-        variables: {
-          id: "65804c236a94f3035dc8fe82",
-        }
-    });*/
 
     useEffect(() => {
   const fetchData = async () => {
@@ -197,8 +132,6 @@ const ExcelToHandsontable = forwardRef<ExcelToHandsontableRef, ExcelToHandsontab
             case "array":
             case "dropdownlist":
               column.type = "dropdown";
-              // You would need to fetch the dropdown data from the URL provided
-              // For simplicity, let's assume it's already fetched and stored in a variable
               column.source = userNames; // dropdownData should be an array of values
               break;
             default:
@@ -215,7 +148,7 @@ const ExcelToHandsontable = forwardRef<ExcelToHandsontableRef, ExcelToHandsontab
      }, [dataTemplate, columns]);
 
 
-    const { data:sheetTemplate, loading: gettingSheet, refetch  } = useFindSheetsByQuotationAndStageQuery({
+    const { data:sheetTemplate, refetch  } = useFindSheetsByQuotationAndStageQuery({
         variables: {
           quoteId:quoteId,
           stage:stage.toString()
@@ -230,10 +163,6 @@ const ExcelToHandsontable = forwardRef<ExcelToHandsontableRef, ExcelToHandsontab
   }, [stage, quoteId, refetch]);
 
     const sheet = useMemo(() => sheetTemplate?.findSheetsByQuotationAndStage, [sheetTemplate]);
-
-
-  
-
 
 function columnIndexToLetter(index: number): string {
   let letter = '';
@@ -295,8 +224,6 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
 });
 
   
-     
-
     useEffect(() => {
   if ((!data || data?.length === 0) && template) {
     if (sheet?.length > 0) {
@@ -320,14 +247,9 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
       }, {});
         const data = Array.from({ length: numberOfRows }, () => ({ ...emptyRow }));
         setData(data as Handsontable.CellValue[][]);
-              
     }
   }
 }, [data, template, stage, sheet, columns]);
-
-    
-
-    
 
     const handleFileChange = (info: UploadChangeParam<UploadFile<any>>) => {
   const file = info.file.originFileObj; // Access the uploaded file
@@ -346,56 +268,9 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
         reader.readAsBinaryString(file);
     };
 
-    const extractStyles = (worksheet: XLSX.WorkSheet): Styles => {
-        const styles: Styles = {};
-
-        if (worksheet['!ref']) {
-            const range = XLSX.utils.decode_range(worksheet['!ref']);
-
-            for (let R = range.s.r; R <= range.e.r; ++R) {
-                for (let C = range.s.c; C <= range.e.c; ++C) {
-                    const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
-                    const cell = worksheet[cellRef];
-
-                    if (cell && cell.s) {
-                        styles[cellRef] = extractCellStyle(cell.s);
-                    }
-                }
-            }
-        }
-
-        return styles;
+    const hasNonEmptyValue = (row: (string | number | null)[]): boolean => {
+      return row.some(value => value !== '' && value !== null);
     };
-
-
-    const extractCellStyle = (cellStyle: any): CellStyle => {
-        const style: CellStyle = {};
-
-        console.log(JSON.stringify(cellStyle));
-        if (cellStyle?.bgColor) {
-
-            if (cellStyle.bgColor?.rgb) {
-                // Ensure the color is in the correct format for CSS
-                let color = cellStyle?.bgColor.rgb;
-                if (color.length === 8) { // ARGB format from Excel
-                    color = color.slice(2); // Strip the alpha component
-                }
-                style.backgroundColor = `#${color}`;
-            } else if (cellStyle.bgColor.theme) {
-                // Handle theme color conversion if needed
-                // You might need additional logic here
-            }
-            console.log(style.backgroundColor); // Log the extracted color
-        }
-
-        // Add more style properties as needed
-
-        return style;
-    };
-
- const hasNonEmptyValue = (row: (string | number | null)[]): boolean => {
-  return row.some(value => value !== '' && value !== null);
-};
 
     const transformData = (handsontableData: Handsontable.CellValue[][]) => {
       const columnNames = columns.map((column: { data: any; }) => column.data);
@@ -409,9 +284,6 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
         return rowData;
       });
 
-    
-
-  // Filter out records with at least one non-empty value
       const filteredData = initData.filter(item => hasNonEmptyValue(Object.values(item)));
       return filteredData;
 
@@ -449,68 +321,14 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
   return composedData;
 }
 
-
     const processData = (workbook: XLSX.WorkBook) => {
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        const cellsStyle = extractStyles(worksheet);
-
-        setStyles(cellsStyle);
-        console.log(JSON.stringify(jsonData));
         
-        const headers: string[] = jsonData[0] as string[];
-
-        const columns = headers.map((header: string) => {
-            let columnConfig:any = { data: header,
-        title: header };
-
-            // Add specific configurations based on header name if needed
-            // Example:
-            columnConfig.type = 'text';
-            if (header === "Price" || header === "Rating") {
-                columnConfig.type = 'numeric';
-            }
-
-            // Add more conditions for other specific headers if necessary
-
-            return columnConfig;
-            });
-
-        //setColumns(columns);
         const thm = composeData(jsonData);
         console.log(thm);
         setData(thm as Handsontable.CellValue[][]);
-    };
-
-    const handleSave = () => {
-        if (hotTableRef.current) {
-            // Access the hotInstance and then call getData
-            const hotInstance = hotTableRef.current.hotInstance;
-            const currentData = hotInstance?.getData();
-
-            console.log(JSON.stringify(currentData));
-        }
-    };
-
-    const [isEditingFormula, setIsEditingFormula] = useState(false);
-    const [selectedCells, setSelectedCells] = useState<Set<string>>(new Set());
-
-    const handleCellClick = (rowIndex: any, columnIndex: any) => {
-        if (isEditingFormula) {
-            const cellAddress = `${Handsontable.helper.spreadsheetColumnLabel(columnIndex)}${rowIndex + 1}`;
-            setSelectedCells(prevSelectedCells => new Set(prevSelectedCells).add(cellAddress));
-        }
-    };
-
-    const cellProperties = (row: any, col: any) => {
-        const cellAddress = `${Handsontable.helper.spreadsheetColumnLabel(col)}${row + 1}`;
-        if (selectedCells.has(cellAddress)) {
-            return {
-                className: 'highlighted-cell'
-            };
-        }
-        return {};
     };
 
     const [tableSize, setTableSize] = useState({ width: '100%', height: '100%' });
@@ -535,57 +353,6 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
         return () => window.removeEventListener('resize', handleResize);
     }, [openTimeline]);
 
-    const handleCellMouseOver = (event: MouseEvent, coords: Handsontable.CellCoords, TD: HTMLTableCellElement) => {
-    if (coords.row < 0 || !hotTableRef.current?.hotInstance) {
-        return;
-    }
-
-    const hotInstance = hotTableRef.current.hotInstance;
-    const index = coords.row;
-
-    for (let i = 0; i < hotInstance.countCols(); i++) {
-        if (coords.col >= -1) {
-            hotInstance.setCellMeta(index, i, 'className', 'myRow');
-        }
-    }
-
-        hotInstance.render();
-    };
-
-    const handleCellMouseOut = (event: MouseEvent, coords: Handsontable.CellCoords, TD: HTMLTableCellElement) => {
-        if (!hotTableRef.current?.hotInstance) {
-            return;
-        }
-
-        const hotInstance = hotTableRef.current.hotInstance;
-        const index = coords.row;
-
-        for (let i = 0; i < hotInstance.countCols(); i++) {
-            if (coords.col >= -1) {
-                hotInstance.removeCellMeta(index, i, 'className', 'myRow');
-            }
-        }
-    };
-
-    const indexToColumnLetter = (index: number): string => {
-    let letter = '';
-    let tempIndex = index;
-    while (tempIndex >= 0) {
-        letter = String.fromCharCode('A'.charCodeAt(0) + (tempIndex % 26)) + letter;
-        tempIndex = Math.floor(tempIndex / 26) - 1;
-    }
-    return letter;
-};
-
-const customCellProperties = (row: number, col: number, prop: any) => {
-        const cellProperties: Partial<Handsontable.CellProperties> = {};
-        if (row === 0) {
-            cellProperties.readOnly = true;
-            
-        }
-        return cellProperties;
-    };
-
     const addRows = (numberOfRowsToAdd: number): void => {
         
         const emptyRow = handsontableColumns.reduce((acc: { [x: string]: string; }, column: { data: string | number; }) => {
@@ -605,12 +372,6 @@ const customCellProperties = (row: number, col: number, prop: any) => {
             addRows(5); // Add 5 more rows
         }
     };
-
-    
-
-  // This method updates the actual data in the Handsontable instance
-  // when the formula bar value changes
- 
 
   useEffect(() => {
     const hotInstance = hotTableRef.current?.hotInstance;
@@ -644,9 +405,6 @@ const customCellProperties = (row: number, col: number, prop: any) => {
     reader.readAsDataURL(file);
   };
 
-   
-
-
    const [cellPosition, setCellPosition] = useState<string>('');
     const [cellValue, setCellValue] = useState<any>(''); // Replace 'any' with a more specific type if possible
 
@@ -662,7 +420,6 @@ const customCellProperties = (row: number, col: number, prop: any) => {
 
     return letter;
 };
-
 
     // Event handler for cell selection
     const handleCellSelection = (
@@ -680,31 +437,7 @@ const customCellProperties = (row: number, col: number, prop: any) => {
     setCellValue(newValue);
 };
 
-
-
-   const handleCellChange1 = (
-        changes: Handsontable.CellChange[] | null, 
-        source: Handsontable.ChangeSource
-    ) => {
-        if (changes && changes.length > 0) {
-            // Check if the source is one of the user-initiated actions (adjust as per your requirement)
-            if (source === 'edit') {  // or other relevant sources
-                const [, , , newValue] = changes[0];
-                setCellValue(newValue as string);  // Update value with the new value
-            }
-        }
-    };
-
-
      const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null);
-
-    
-/*
-const handleFormulaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCellValue(event.target.value);
-    // Don't update the Handsontable data here; let the debounced function or enter key handle it
-};*/
-
 
 
 const handleCellChange = (changes: any) => {
@@ -764,24 +497,6 @@ const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
   }
 };
 
-// Implement a function to process the formula
-// This is a placeholder function, you'll need to implement the logic based on your requirements
-const processFormula = (formula: string): any => {
-  // Example: Simple arithmetic evaluation
-  try {
-    // Evaluate the formula
-    // Caution: This is a simple example and has security implications. 
-    // In a real-world application, you should use a proper library to safely evaluate formulas.
-    return eval(formula);
-  } catch (error) {
-    console.error("Error processing formula", error);
-    return formula; // Return the original formula in case of an error
-  }
-};
-
-
-
-// add new
 
 const [highlightedCell, setHighlightedCell] = useState<[number, number] | null>(null);
   
@@ -821,13 +536,11 @@ const [highlightedCell, setHighlightedCell] = useState<[number, number] | null>(
 }, [highlightedCell]);
 
 
-
   useEffect(() => {
     if (hotTableRef.current && hotTableRef.current.hotInstance) {
       hotTableRef.current.hotInstance.render();
     }
   }, [highlightedCell]);
-
 
 
     const hotSettings: Handsontable.GridSettings = {
@@ -944,9 +657,6 @@ const [highlightedCell, setHighlightedCell] = useState<[number, number] | null>(
                 //minSpareRows={0}
                 //minSpareCols={0}
                 
-                //afterOnCellMouseOver={handleCellMouseOver}
-                //afterOnCellMouseOut={handleCellMouseOut}
-                //afterOnCellMouseDown={handleCellClick}
                 //height='auto'
                 licenseKey="non-commercial-and-evaluation"
                 stretchH="all"
