@@ -98,57 +98,8 @@ const ExcelToHandsontable = forwardRef<ExcelToHandsontableRef, ExcelToHandsontab
         }
     });
 
-    useEffect(() => {
-  const fetchData = async () => {
-    try {
-      await refetchTemplate({
-        name: mapStageToName(stage),
-        // Add other variables as needed
-      });
-    } catch (error) {
-      console.error("Error refetching data:", error);
-    }
-  };
 
-  fetchData();
-}, [stage, quoteId, refetchTemplate, dataTemplate]);
-
-    const template = useMemo(() => dataTemplate?.findOneTemplateByName, [dataTemplate]);
-
-    useEffect(() => {
-        const handsontableColumns1 = template?.dynamicFields?.map((field: Field, index: number) => {
-          const columnLetter = columnIndexToLetter(index); 
-          const column:any = { readOnly: false, data: toCamelCase(field.fieldName) , title: `${field.fieldName}  (${columnLetter})`, renderer: htmlRenderer};
-        // data: field.fieldName,
-          switch (field.type) {
-            case "text":
-              // No specific configuration needed for text
-            
-              column.type = "text";
-              break;
-            case "number":
-              column.type = "numeric";
-              break;
-            case "array":
-            case "dropdownlist":
-              column.type = "dropdown";
-              column.source = userNames; // dropdownData should be an array of values
-              break;
-            default:
-              // Handle any other types or default case
-          }
-          column.readOnly= false;
-          return column;
-        });
-
-        if (Array.isArray(handsontableColumns1)) {
-        setColumns(handsontableColumns1);
-        }
-
-     }, [dataTemplate, columns]);
-
-
-    const { data:sheetTemplate, refetch  } = useFindSheetsByQuotationAndStageQuery({
+        const { data:sheetTemplate, refetch  } = useFindSheetsByQuotationAndStageQuery({
         variables: {
           quoteId:quoteId,
           stage:stage.toString()
@@ -163,6 +114,90 @@ const ExcelToHandsontable = forwardRef<ExcelToHandsontableRef, ExcelToHandsontab
   }, [stage, quoteId, refetch]);
 
     const sheet = useMemo(() => sheetTemplate?.findSheetsByQuotationAndStage, [sheetTemplate]);
+
+
+    //const [template, setTemplate] = useState<any>(null);
+    useEffect(() => {
+  const fetchData = async () => {
+    try {
+      await refetchTemplate({
+        name: mapStageToName(stage),
+        // Add other variables as needed
+      });
+    } catch (error) {
+      console.error("Error refetching data:", error);
+    }
+  };
+
+  fetchData();
+
+}, [stage]);
+
+
+useEffect(() => {
+  console.log("okk12");
+});
+    //const template = useMemo(() => dataTemplate?.findOneTemplateByName, [dataTemplate]);
+
+    function createColumnsFromFields(fields: Field[]): any[] {
+      return fields.map((field, index) => {
+        const columnLetter = columnIndexToLetter(index); 
+        const column: any = {
+          readOnly: false,
+          data: toCamelCase(field.fieldName),
+          title: `${field.fieldName} (${columnLetter})`,
+          renderer: htmlRenderer,
+          type: 'text', // default type
+        };
+
+        switch (field.type) {
+          case 'number':
+            column.type = 'numeric';
+            break;
+          case 'array':
+          case 'dropdownlist':
+            column.type = 'dropdown';
+            column.source = userNames; // Assuming userNames is available
+            break;
+          // Handle other types or default case
+        }
+
+        return column;
+      });
+    }
+
+    const template = useMemo(() => dataTemplate?.findOneTemplateByName, [dataTemplate, stage]);
+
+    useEffect(() => {
+      const be =  createColumnsFromFields(template?.dynamicFields || []);
+      setColumns(be);
+
+    if ((!data || data?.length === 0) && template) {
+      if (sheet?.length > 0) {
+        const newData = _.cloneDeep(sheet[0]?.dynamicFields);
+
+        const numberOfRows = 100 - newData?.length;
+        const emptyRow = columns.reduce((acc: { [x: string]: string; }, column: { data: string | number; }) => {
+          acc[column.data] = '';
+          return acc;
+        }, {});
+          const data = Array.from({ length: numberOfRows }, () => ({ ...emptyRow }));
+        
+        const totalData = [...newData, ...data];
+        setData(totalData as Handsontable.CellValue[][]);
+      } else {
+        const numberOfRows = 100;
+
+        const emptyRow = columns.reduce((acc: { [x: string]: string; }, column: { data: string | number; }) => {
+          acc[column.data] = '';
+          return acc;
+        }, {});
+          const data = Array.from({ length: numberOfRows }, () => ({ ...emptyRow }));
+          setData(data as Handsontable.CellValue[][]);
+      }
+    }
+  }, [data, template, stage, sheet]);
+
 
 function columnIndexToLetter(index: number): string {
   let letter = '';
@@ -197,59 +232,7 @@ const htmlRenderer: Handsontable.renderers.BaseRenderer = (instance: Handsontabl
 }
 
 
-const handsontableColumns = template?.dynamicFields?.map((field: Field, index: number) => {
-   const columnLetter = columnIndexToLetter(index); 
-  const column:any = {  readOnly: false, data: toCamelCase(field.fieldName) , title: `${field.fieldName}  (${columnLetter})`, renderer: htmlRenderer};
- // data: field.fieldName,
-  switch (field.type) {
-    case "text":
-      // No specific configuration needed for text
-     
-      column.type = "text";
-      
-      break;
-    case "number":
-      column.type = "numeric";
-      break;
-    case "array":
-    case "dropdownlist":
-      column.type = "dropdown";
-      column.source = userNames; // dropdownData should be an array of values
-      break;
-    default:
-      // Handle any other types or default case
-  }
-  column.readOnly= false;
-  return column;
-});
 
-  
-    useEffect(() => {
-  if ((!data || data?.length === 0) && template) {
-    if (sheet?.length > 0) {
-      const newData = _.cloneDeep(sheet[0]?.dynamicFields);
-
-      const numberOfRows = 100 - newData?.length;
-      const emptyRow = columns.reduce((acc: { [x: string]: string; }, column: { data: string | number; }) => {
-        acc[column.data] = '';
-        return acc;
-      }, {});
-        const data = Array.from({ length: numberOfRows }, () => ({ ...emptyRow }));
-      
-      const totalData = [...newData, ...data];
-      setData(totalData as Handsontable.CellValue[][]);
-    } else {
-      const numberOfRows = 100;
-
-      const emptyRow = columns.reduce((acc: { [x: string]: string; }, column: { data: string | number; }) => {
-        acc[column.data] = '';
-        return acc;
-      }, {});
-        const data = Array.from({ length: numberOfRows }, () => ({ ...emptyRow }));
-        setData(data as Handsontable.CellValue[][]);
-    }
-  }
-}, [data, template, stage, sheet, columns]);
 
     const handleFileChange = (info: UploadChangeParam<UploadFile<any>>) => {
   const file = info.file.originFileObj; // Access the uploaded file
@@ -299,10 +282,7 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
       };
     },
     resetData: () => {
-      
       setData([]);
-      setColumns([]);
-      
     },
   }));
 
@@ -312,7 +292,7 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
 
   const composedData = dataWithoutHeader.map((row: { [x: string]: string | number; }) => {
     const composedObject: { [key: string]: string | number } = {};
-    handsontableColumns.forEach((column: { data: string | number; }, index: string | number) => {
+    columns.forEach((column: { data: string | number; }, index: string | number) => {
       composedObject[column.data] = row[index];
     });
     return composedObject;
@@ -355,7 +335,7 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
 
     const addRows = (numberOfRowsToAdd: number): void => {
         
-        const emptyRow = handsontableColumns.reduce((acc: { [x: string]: string; }, column: { data: string | number; }) => {
+        const emptyRow = columns.reduce((acc: { [x: string]: string; }, column: { data: string | number; }) => {
         acc[column.data] = '';
         return acc;
       }, {});
@@ -398,7 +378,7 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
       //console.log(JSON.stringify(newData));
       //const item = newData[row];
       //item[col] =imgHtml;
-      newData[row][handsontableColumns[col].data] = imgHtml;
+      newData[row][columns[col].data] = imgHtml;
       setData(newData);
       hotTableRef.current?.hotInstance?.render();
     };
@@ -481,7 +461,7 @@ const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
 
     // Update the Handsontable data
     const newData = [...data];
-    newData[row][handsontableColumns[col].data] = formulaValue;
+    newData[row][columns[col].data] = formulaValue;
 
     setData(newData);
 
