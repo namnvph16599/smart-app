@@ -301,7 +301,16 @@ const handsontableColumns = template?.dynamicFields?.map((field: Field, index: n
   if ((!data || data?.length === 0) && template) {
     if (sheet?.length > 0) {
       const newData = _.cloneDeep(sheet[0]?.dynamicFields);
-      setData(newData as Handsontable.CellValue[][]);
+
+      const numberOfRows = 100 - newData?.length;
+      const emptyRow = columns.reduce((acc: { [x: string]: string; }, column: { data: string | number; }) => {
+        acc[column.data] = '';
+        return acc;
+      }, {});
+        const data = Array.from({ length: numberOfRows }, () => ({ ...emptyRow }));
+      
+      const totalData = [...newData, ...data];
+      setData(totalData as Handsontable.CellValue[][]);
     } else {
       const numberOfRows = 100;
 

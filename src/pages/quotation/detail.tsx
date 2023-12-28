@@ -21,6 +21,8 @@ import { STORAGE_KEYS } from '../../constants';
 import { useUpdatesheetMutation } from '../../graphql/mutations/updatesheet.generated';
 import { useUpdateQuotationStageAndStatusMutation } from '../../graphql/mutations/updateQuotationStageAndStatus.generated';
 
+import { useLocation } from 'react-router-dom';
+
 //Or, to reduce the size of your JavaScript bundle, import only the modules that you need.
 registerAllModules();
 
@@ -44,6 +46,8 @@ const QuotaionDetail = memo(() => {
 
   const [step, setStep] = useState(0);
 
+
+
   const [receiver, setReceiver] = useState("");
 
   //  change id to step when onclick
@@ -51,6 +55,34 @@ const QuotaionDetail = memo(() => {
   const { id:quoteId } = useParams();
 
 
+    const stageMappings: Record<number, string> = {
+      0:'working_recap',
+      1: 'initial_volumes',
+      2: 'admin_check',
+      3: 'pre_class',
+      4: 'phasing',
+      5: 'pack_copy',
+      6: 'template',
+    };
+
+
+  const location = useLocation();
+  const additionalData = location.state?.additionalData;
+
+
+  const findKeyByValue = (value: string, mappings: Record<number, string>): number => {
+  const key = Object.keys(mappings).find(k => mappings[parseInt(k, 10)] === value);
+  return key !== undefined ? parseInt(key, 10) : 0; // Replace 0 with your default value
+};
+
+  useEffect(() => {
+    const stageNumber = findKeyByValue(additionalData.initState.stage, stageMappings);
+
+    console.log(additionalData.initState.stage);
+    console.log(stageNumber);
+    setStep(stageNumber);
+        
+  }, [additionalData]);
   // TODO: handle
   const [createSheetAsync, { loading: creating }] = useCreateSheetMutation({
     onCompleted() {
@@ -79,15 +111,7 @@ const QuotaionDetail = memo(() => {
     },
   });
 
-  const stageMappings: Record<number, string> = {
-      0:'working_recap',
-      1: 'initial_volumes',
-      2: 'admin_check',
-      3: 'pre_class',
-      4: 'phasing',
-      5: 'pack_copy',
-      6: 'template',
-    };
+
 
     function mapStageToName(stage: any): string {
       return stageMappings[stage] || 'unknown_stage';
